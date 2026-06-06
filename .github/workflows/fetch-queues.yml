@@ -1,4 +1,4 @@
-name: Fetch ISO queues2
+name: Fetch ISO queues
 
 on:
   push:
