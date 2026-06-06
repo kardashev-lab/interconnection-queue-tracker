@@ -55,7 +55,10 @@ export function QueueTracker({ initial }: { initial: QueuePayload }) {
     <div className="min-h-dvh">
       <QueueHero liveTotals={liveTotals} liveMarkets={liveMarkets} />
 
-      <main className="mx-auto max-w-5xl space-y-10 px-5 py-8">
+      {/* Canvas break between header photo and body background */}
+      <div className="h-10 bg-[#f7f6f3] sm:h-14" aria-hidden />
+
+      <main className="mx-auto max-w-5xl space-y-10 px-5 pb-8 pt-2">
         {hasLiveDashboard ? (
           <>
             <QueueBriefing liveTotals={liveTotals} insights={insights} />
@@ -72,8 +75,8 @@ export function QueueTracker({ initial }: { initial: QueuePayload }) {
               <div className="surface flex flex-col overflow-hidden border border-[#eaeaea]">
                 <div className="relative h-44 w-full lg:min-h-44 lg:flex-1">
                   <Image
-                    src="/images/substation-detail.jpg"
-                    alt="Electrical substation equipment and transmission lines"
+                    src="/images/hero-header.jpg"
+                    alt="Utility-scale solar and wind generation across open landscape"
                     fill
                     className="object-cover object-center"
                     sizes="(max-width: 1024px) 100vw, 420px"

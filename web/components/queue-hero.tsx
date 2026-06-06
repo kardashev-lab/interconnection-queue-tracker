@@ -11,7 +11,7 @@ export function QueueHero({
   liveMarkets: string[];
 }) {
   return (
-    <header className="relative overflow-hidden border-b border-[#eaeaea]">
+    <header className="relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0">
         <Image
           src="/images/hero-transmission.jpg"
@@ -22,7 +22,7 @@ export function QueueHero({
           sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-white from-[38%] via-white/94 to-white/55 sm:from-[42%] sm:via-white/90 sm:to-white/45" />
-        <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-transparent to-white/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#f7f6f3] via-white/40 to-white/30" />
       </div>
 
       <div className="relative mx-auto max-w-5xl px-5 py-8 sm:py-10">

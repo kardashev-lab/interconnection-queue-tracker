@@ -16,10 +16,19 @@ html {
 body {
   background-color: var(--canvas);
   background-image:
-    linear-gradient(rgba(247, 246, 243, 0.92), rgba(247, 246, 243, 0.96)),
-    url("/images/hero-transmission.jpg");
+    linear-gradient(
+      to right,
+      rgba(247, 246, 243, 0.55) 0%,
+      rgba(247, 246, 243, 0.82) 16%,
+      rgba(247, 246, 243, 0.96) 32%,
+      rgba(247, 246, 243, 0.98) 50%,
+      rgba(247, 246, 243, 0.96) 68%,
+      rgba(247, 246, 243, 0.82) 84%,
+      rgba(247, 246, 243, 0.55) 100%
+    ),
+    url("/images/body-canvas.jpg");
   background-size: cover;
-  background-position: center;
+  background-position: center center;
   background-repeat: no-repeat;
   background-attachment: fixed;
   color: var(--ink);
