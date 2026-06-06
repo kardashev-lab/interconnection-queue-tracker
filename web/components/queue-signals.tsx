@@ -9,8 +9,8 @@ export function QueueSignals({ rows }: { rows: QueueRow[] }) {
   return (
     <section>
       <div className="mb-4">
-        <h2 className="text-sm font-medium text-[#2f3437]">Other queue signals</h2>
-        <p className="mt-1 max-w-2xl text-sm text-[#787774]">
+        <h2 className="font-display text-lg text-[#2f3437]">Other queue signals</h2>
+        <p className="mt-1.5 max-w-2xl text-base leading-relaxed text-[#5f5c58]">
           Large-load demand, post-reform cycles, and report-only queues that aren&apos;t in the
           standard generator tables.
         </p>

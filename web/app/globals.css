@@ -32,7 +32,9 @@ body {
   background-repeat: no-repeat;
   background-attachment: fixed;
   color: var(--ink);
-  font-family: var(--font-geist-sans), "Helvetica Neue", sans-serif;
+  font-family: var(--font-sans), "Helvetica Neue", sans-serif;
+  font-feature-settings: "kern" 1, "liga" 1;
+  line-height: 1.6;
   overflow-x: hidden;
 }
 
@@ -53,9 +55,28 @@ body {
   color: var(--ink);
 }
 
+.font-display {
+  font-family: var(--font-sans), "Helvetica Neue", sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+
+.font-label {
+  font-family: var(--font-sans), "Helvetica Neue", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: #6b6863;
+}
+
 .font-metric {
-  font-family: var(--font-geist-mono), "SF Mono", ui-monospace, monospace;
+  font-family: var(--font-sans), "Helvetica Neue", sans-serif;
   font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
 /* Fixed grain — not on scroll containers (per perf guardrails) */

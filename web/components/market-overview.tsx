@@ -21,8 +21,8 @@ export function MarketOverview({
   return (
     <section>
       <div className="mb-4">
-        <h2 className="text-sm font-medium text-[#2f3437]">Queue by market</h2>
-        <p className="mt-1 text-sm text-[#787774]">
+        <h2 className="font-display text-lg text-[#2f3437]">Queue by market</h2>
+        <p className="mt-1.5 text-base leading-relaxed text-[#5f5c58]">
           Capacity, fuel mix, and project counts from live ISO feeds. Select a market to explore
           projects.
         </p>

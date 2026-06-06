@@ -3,11 +3,18 @@ import path from "node:path";
 import pg from "pg";
 import type { LiveTotals, QueueProject, QueueRow } from "./types";
 
-const CURATED_PATH =
-  process.env.CURATED_PATH ??
-  (fs.existsSync(path.join(process.cwd(), "data", "curated.json"))
-    ? path.join(process.cwd(), "data", "curated.json")
-    : path.resolve(process.cwd(), "../data/curated.json"));
+function resolveCuratedPath(): string {
+  if (process.env.CURATED_PATH) {
+    return process.env.CURATED_PATH;
+  }
+
+  const localPath = path.join(/* turbopackIgnore: true */ process.cwd(), "data", "curated.json");
+  if (fs.existsSync(localPath)) {
+    return localPath;
+  }
+
+  return path.join(/* turbopackIgnore: true */ process.cwd(), "..", "data", "curated.json");
+}
 
 let pool: pg.Pool | null = null;
 let schemaReady: Promise<void> | null = null;
@@ -169,9 +176,10 @@ function formatSnapshot(row: Record<string, unknown>): QueueRow {
 
 export function loadCuratedFallback(): QueueRow[] {
   try {
-    const resolved = path.isAbsolute(CURATED_PATH)
-      ? CURATED_PATH
-      : path.resolve(process.cwd(), CURATED_PATH);
+    const curatedPath = resolveCuratedPath();
+    const resolved = path.isAbsolute(curatedPath)
+      ? curatedPath
+      : path.resolve(/* turbopackIgnore: true */ process.cwd(), curatedPath);
     if (!fs.existsSync(resolved)) {
       console.error("Curated fallback not found:", resolved);
       return [];

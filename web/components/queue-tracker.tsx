@@ -83,10 +83,8 @@ export function QueueTracker({ initial }: { initial: QueuePayload }) {
                   />
                 </div>
                 <div className="shrink-0 px-5 py-4">
-                  <h2 className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#787774]">
-                    Why this matters
-                  </h2>
-                  <ul className="mt-4 space-y-4 text-sm leading-relaxed text-[#787774]">
+                  <h2 className="font-label">Why this matters</h2>
+                  <ul className="mt-4 space-y-4 text-base leading-relaxed text-[#5f5c58]">
                   <li>
                     Interconnection queues are the bottleneck for new generation and large loads.
                     MW sitting in queue ≠ MW getting built — study timelines and withdrawal rates
@@ -120,8 +118,8 @@ export function QueueTracker({ initial }: { initial: QueuePayload }) {
             <section>
               <div className="flex flex-col gap-3 border-b border-[#eaeaea] pb-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <h2 className="text-sm font-medium text-[#2f3437]">Project lookup</h2>
-                  <p className="mt-1 text-sm text-[#787774]">
+                  <h2 className="font-display text-lg text-[#2f3437]">Project lookup</h2>
+                  <p className="mt-1.5 text-base text-[#5f5c58]">
                     Search individual queue entries when you need a specific project, ID, or status.
                   </p>
                 </div>

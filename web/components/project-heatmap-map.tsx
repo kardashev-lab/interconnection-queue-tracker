@@ -22,16 +22,17 @@ function stateDetail(
   market: string | undefined,
   countsByFips: Record<string, number>,
 ): StateDetail {
-  const covered = isCoveredState(fips, market);
+  const covered = isCoveredState(fips, market, countsByFips);
   if (!covered) {
     return { fips, name, detail: "Outside tracked ISO/RTO footprint" };
   }
   const count = countsByFips[fips] ?? 0;
   const iso = marketForState(fips);
+  const isoLabel = iso ?? (count > 0 ? "queue data" : "");
   return {
     fips,
     name,
-    detail: `${formatCount(count)} projects${iso ? ` · ${iso}` : ""}`,
+    detail: `${formatCount(count)} projects${isoLabel ? ` · ${isoLabel}` : ""}`,
   };
 }
 
@@ -47,17 +48,20 @@ export const ProjectHeatmapMap = memo(function ProjectHeatmapMap({
   const [hover, setHover] = useState<StateDetail | null>(null);
   const [selected, setSelected] = useState<StateDetail | null>(null);
 
-  const coveredFips = useMemo(() => coveredFipsForFilter(market), [market]);
+  const countsByFips = useMemo(
+    () => countProjectsByFips(projects, market),
+    [projects, market],
+  );
+
+  const coveredFips = useMemo(
+    () => coveredFipsForFilter(market, countsByFips),
+    [market, countsByFips],
+  );
 
   useEffect(() => {
     setSelected(null);
     setHover(null);
   }, [market]);
-
-  const countsByFips = useMemo(
-    () => countProjectsByFips(projects, market),
-    [projects, market],
-  );
 
   const maxCount = useMemo(() => {
     const coveredCounts = [...coveredFips].map((fips) => countsByFips[fips] ?? 0);
@@ -71,9 +75,7 @@ export const ProjectHeatmapMap = memo(function ProjectHeatmapMap({
     <div className={`flex min-h-0 flex-col ${className}`}>
       <div className="flex shrink-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#787774]">
-            {titled}
-          </h2>
+          <h2 className="font-label">{titled}</h2>
           <p className="mt-2 min-h-12 text-sm leading-relaxed">
             {activeState ? (
               <span className="font-metric text-[#2f3437]">
@@ -81,24 +83,23 @@ export const ProjectHeatmapMap = memo(function ProjectHeatmapMap({
               </span>
             ) : (
               <span className="text-[#787774]">
-                Heatmap covers ISO/RTO footprint only — gray states are outside tracked markets.
-                Tap a state to see project counts.
+                Shaded states are in a tracked ISO footprint or have projects in our queue data.
+                Gray states are outside current coverage (e.g. Southeast, WECC). Tap a state for
+                counts.
               </span>
             )}
           </p>
         </div>
 
         <div className="shrink-0">
-          <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#787774]">
-            Scale (covered states)
-          </p>
+          <p className="font-label">Scale (covered states)</p>
           <div
             className="mt-1.5 h-2 w-36 border border-[#eaeaea]"
             style={{
               background: "linear-gradient(to right, #ebeae6, #d4c4b0, #1f6c9f, #2f3437)",
             }}
           />
-          <div className="mt-1 flex w-36 justify-between font-metric text-[10px] text-[#787774]">
+          <div className="mt-1 flex w-36 justify-between font-metric text-xs text-[#6b6863]">
             <span>0</span>
             <span>{formatCount(maxCount)}</span>
           </div>
@@ -118,7 +119,7 @@ export const ProjectHeatmapMap = memo(function ProjectHeatmapMap({
               geographies.map((geo) => {
                 const fips = String(geo.id).padStart(2, "0");
                 const name = FIPS_TO_STATE_NAME[fips] ?? String(geo.properties?.name ?? fips);
-                const covered = isCoveredState(fips, market);
+                const covered = isCoveredState(fips, market, countsByFips);
                 const count = covered ? (countsByFips[fips] ?? 0) : 0;
                 const fill = covered ? heatColor(count, maxCount) : UNCOVERED_FILL;
                 const isSelected = selected?.fips === fips;

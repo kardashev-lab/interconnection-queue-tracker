@@ -29,10 +29,10 @@ export function QueueHero({
         <div className="flex flex-col gap-8">
           <div className="flex flex-col gap-8 lg:flex-row lg:items-stretch lg:gap-10">
             <div className="flex max-w-xl flex-1 flex-col justify-center lg:py-2">
-              <h1 className="text-3xl font-medium tracking-tight text-[#2f3437] sm:text-4xl">
+              <h1 className="font-display text-3xl text-[#2f3437] sm:text-4xl">
                 US Interconnection Queue
               </h1>
-              <p className="mt-3 text-sm leading-relaxed text-[#787774] sm:text-[15px]">
+              <p className="mt-3 text-base leading-relaxed text-[#5f5c58]">
                 Where new power is waiting to connect — queue size, fuel mix, and market signals
                 across ISO/RTO territories.
               </p>
@@ -49,7 +49,7 @@ export function QueueHero({
 
           {liveTotals && (
             <div className="space-y-3 border-t border-[#eaeaea] pt-8">
-              <p className="font-metric text-xs text-[#787774]">
+              <p className="text-sm text-[#6b6863]">
                 Updated {formatDate(liveTotals.lastFetched)}
               </p>
               <TrackedMarketsStrip markets={liveMarkets} className="sm:flex-nowrap" />
@@ -64,10 +64,8 @@ export function QueueHero({
 function HeroStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex min-h-[5.5rem] flex-col items-center justify-center px-5 py-4 text-center sm:min-h-[6.25rem] sm:px-6">
-      <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#787774]">
-        {label}
-      </p>
-      <p className="mt-1.5 font-metric text-xl text-[#2f3437] sm:text-2xl">{value}</p>
+      <p className="font-label">{label}</p>
+      <p className="mt-1.5 font-metric text-2xl text-[#2f3437]">{value}</p>
     </div>
   );
 }

@@ -10,24 +10,34 @@ export const TRACKED_MARKETS = [
 ] as const;
 export type TrackedMarket = (typeof TRACKED_MARKETS)[number];
 
-/** us-atlas states-10m.json uses numeric FIPS ids as `id`. */
+/**
+ * Approximate primary ISO/RTO per state for map shading.
+ * Dual-service states pick the operator that typically holds the GI queue
+ * (see PJM / MISO / SPP territory maps). States with live project data
+ * are also shaded even if absent here — see isCoveredState().
+ */
 export const FIPS_TO_MARKET: Record<string, TrackedMarket> = {
+  // CAISO
   "06": "CAISO",
   "32": "CAISO",
+  // ERCOT
   "48": "ERCOT",
+  // MISO (Midwest + South)
+  "01": "MISO",
   "05": "MISO",
   "17": "MISO",
   "18": "MISO",
   "19": "MISO",
+  "22": "MISO",
   "26": "MISO",
   "27": "MISO",
-  "29": "MISO",
-  "22": "MISO",
   "28": "MISO",
+  "29": "MISO",
   "30": "MISO",
   "38": "MISO",
   "46": "MISO",
   "55": "MISO",
+  // PJM
   "10": "PJM",
   "11": "PJM",
   "21": "PJM",
@@ -39,43 +49,69 @@ export const FIPS_TO_MARKET: Record<string, TrackedMarket> = {
   "47": "PJM",
   "51": "PJM",
   "54": "PJM",
+  // ISO-NE
   "09": "ISO-NE",
   "23": "ISO-NE",
   "25": "ISO-NE",
   "33": "ISO-NE",
   "44": "ISO-NE",
   "50": "ISO-NE",
+  // NYISO
   "36": "NYISO",
+  // SPP
   "20": "SPP",
   "31": "SPP",
-  "40": "SPP",
-  "08": "SPP",
-  "16": "SPP",
   "35": "SPP",
+  "40": "SPP",
+  "56": "SPP",
 };
 
 export function marketForState(fips: string): TrackedMarket | null {
   return FIPS_TO_MARKET[fips.padStart(2, "0")] ?? null;
 }
 
-/** States included in the 7 tracked ISO/RTO footprints (approximate). */
-export function isCoveredState(fips: string, market?: string): boolean {
+export function isCoveredState(
+  fips: string,
+  market?: string,
+  countsByFips?: Record<string, number>,
+): boolean {
   const normalized = fips.padStart(2, "0");
   const iso = FIPS_TO_MARKET[normalized];
-  if (!iso) return false;
-  if (market && market !== "all") return iso === market;
-  return true;
+  const hasProjects = (countsByFips?.[normalized] ?? 0) > 0;
+
+  if (market && market !== "all") {
+    if (iso === market) return true;
+    return hasProjects;
+  }
+
+  return iso != null || hasProjects;
 }
 
-export function coveredFipsForFilter(market?: string): Set<string> {
-  if (market && market !== "all") {
-    return new Set(
-      Object.entries(FIPS_TO_MARKET)
-        .filter(([, iso]) => iso === market)
-        .map(([fips]) => fips),
-    );
+export function coveredFipsForFilter(
+  market?: string,
+  countsByFips?: Record<string, number>,
+): Set<string> {
+  const covered = new Set<string>();
+
+  for (const fips of Object.keys(FIPS_TO_MARKET)) {
+    if (isCoveredState(fips, market, countsByFips)) {
+      covered.add(fips);
+    }
   }
-  return new Set(Object.keys(FIPS_TO_MARKET));
+
+  if (countsByFips) {
+    for (const [fips, count] of Object.entries(countsByFips)) {
+      if (count > 0 && isCoveredState(fips, market, countsByFips)) {
+        covered.add(fips.padStart(2, "0"));
+      }
+    }
+  }
+
+  return covered;
+}
+
+export function coveredStateCount(countsByFips?: Record<string, number>): number {
+  return coveredFipsForFilter(undefined, countsByFips).size;
 }
 
 export const US_STATES_GEO_URL =

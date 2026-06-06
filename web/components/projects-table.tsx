@@ -46,10 +46,8 @@ export function ProjectsTable({
     <section>
       <div className="flex flex-col gap-4 border-b border-[#eaeaea] pb-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#787774]">
-            Interconnection queue
-          </h2>
-          <p className="mt-1 text-sm text-[#787774]">
+          <h2 className="font-label">Interconnection queue</h2>
+          <p className="mt-1.5 text-base text-[#5f5c58]">
             {formatCount(filtered.length)} projects · sorted by capacity
           </p>
         </div>
@@ -84,7 +82,7 @@ export function ProjectsTable({
           <div className="hidden overflow-x-auto md:block">
             <table className="min-w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-[#eaeaea] text-[10px] font-medium uppercase tracking-[0.1em] text-[#787774]">
+                <tr className="border-b border-[#eaeaea] font-label">
                   {showMarket && <th className="py-3 pr-4 font-medium">ISO</th>}
                   <th className="py-3 pr-4 font-medium">Project</th>
                   <th className="py-3 pr-4 font-medium">Queue ID</th>
@@ -198,9 +196,7 @@ function ProjectCard({
 
       <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
         <div>
-          <dt className="text-[10px] font-medium uppercase tracking-[0.08em] text-[#787774]">
-            Fuel
-          </dt>
+          <dt className="font-label">Fuel</dt>
           <dd className="mt-0.5 text-[#2f3437]">
             {project.fuel ? (
               <span className="inline-flex items-center gap-1.5">
@@ -213,15 +209,11 @@ function ProjectCard({
           </dd>
         </div>
         <div>
-          <dt className="text-[10px] font-medium uppercase tracking-[0.08em] text-[#787774]">
-            State
-          </dt>
+          <dt className="font-label">State</dt>
           <dd className="mt-0.5 text-[#2f3437]">{project.state || "—"}</dd>
         </div>
         <div className="col-span-2">
-          <dt className="text-[10px] font-medium uppercase tracking-[0.08em] text-[#787774]">
-            Status
-          </dt>
+          <dt className="font-label">Status</dt>
           <dd className="mt-0.5 leading-relaxed text-[#787774]">{project.status || "—"}</dd>
         </div>
       </dl>
