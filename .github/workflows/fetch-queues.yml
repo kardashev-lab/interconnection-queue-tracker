@@ -1,6 +1,11 @@
 name: Fetch ISO queues2
 
 on:
+  push:
+    branches: [master, main]
+    paths:
+      - ".github/workflows/fetch-queues.yml"
+      - "services/fetcher/**"
   schedule:
     # Daily at 06:00 UTC
     - cron: "0 6 * * *"
