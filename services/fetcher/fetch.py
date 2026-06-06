@@ -7,6 +7,7 @@ import io
 import json
 import os
 import sys
+import time
 import traceback
 from datetime import date
 from typing import Any
@@ -65,7 +66,7 @@ MARKET_CONFIG: dict[str, dict[str, Any]] = {
         "source_url": "https://opsportal.spp.org/Studies/GISummary",
     },
     "NYISO": {
-        "cls": gridstatus.NYISO,
+        "fetch": "nyiso_public",
         "snapshot_id": "nyiso-gi-queue",
         "category": "Generator interconnection queue",
         "source_label": "NYISO interconnection queue",
@@ -85,6 +86,15 @@ DEFAULT_MARKETS = ",".join(MARKET_CONFIG.keys())
 # Public subscription key from PJM's interconnection queue web app (not a member API key).
 PJM_QUEUE_EXPORT_URL = "https://services.pjm.com/PJMPlanningApi/api/Queue/ExportToXls"
 PJM_QUEUE_SUBSCRIPTION_KEY = "E29477D0-70E0-4825-89B0-43F460BF9AB4"
+
+# NYISO serves this xlsx asynchronously — HTTP 202 until the file is ready.
+NYISO_QUEUE_URL = (
+    "https://www.nyiso.com/documents/20142/1407078/NYISO-Interconnection-Queue.xlsx"
+)
+NYISO_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (compatible; interconnection-queue-tracker/1.0)",
+    "Accept": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,*/*",
+}
 
 
 def log(msg: str) -> None:
@@ -248,11 +258,41 @@ def fetch_pjm_public_queue() -> pd.DataFrame:
     return queue
 
 
+def download_nyiso_xlsx(*, max_attempts: int = 12, initial_delay: int = 10) -> io.BytesIO:
+    delay = initial_delay
+    for attempt in range(1, max_attempts + 1):
+        log(f"Downloading NYISO interconnection queue (attempt {attempt}/{max_attempts})...")
+        response = requests.get(NYISO_QUEUE_URL, headers=NYISO_HEADERS, timeout=180)
+        if response.status_code == 200 and len(response.content) > 5000:
+            return io.BytesIO(response.content)
+        if response.status_code in (202, 429, 503) and attempt < max_attempts:
+            log(f"NYISO xlsx not ready (HTTP {response.status_code}), waiting {delay}s...")
+            time.sleep(delay)
+            delay = min(delay + 10, 60)
+            continue
+        if response.status_code == 200:
+            raise RuntimeError(
+                f"NYISO xlsx response too small ({len(response.content)} bytes)"
+            )
+        response.raise_for_status()
+    raise RuntimeError(f"NYISO xlsx unavailable after {max_attempts} attempts")
+
+
+def fetch_nyiso_public_queue() -> pd.DataFrame:
+    raw = download_nyiso_xlsx()
+    iso = gridstatus.NYISO()
+    raw.seek(0)
+    iso.get_raw_interconnection_queue = lambda: raw  # type: ignore[method-assign]
+    return iso.get_interconnection_queue()
+
+
 def fetch_market(config: dict[str, Any], market: str) -> pd.DataFrame:
     log(f"Fetching {market} interconnection queue...")
     fetcher = config.get("fetch")
     if fetcher == "pjm_public":
         df = fetch_pjm_public_queue()
+    elif fetcher == "nyiso_public":
+        df = fetch_nyiso_public_queue()
     elif callable(fetcher):
         df = fetcher()
     else:
@@ -458,7 +498,7 @@ def main() -> int:
                 traceback.print_exc()
 
         log(f"Fetch complete: {ok} succeeded, {failed} failed.")
-        return 0 if ok > 0 else 1
+        return 0 if failed == 0 else (0 if ok > 0 else 1)
     finally:
         conn.close()
 
