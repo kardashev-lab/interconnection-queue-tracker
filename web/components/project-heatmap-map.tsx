@@ -4,7 +4,7 @@ import { memo, useEffect, useMemo, useState } from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 import { countProjectsByFips } from "@/lib/analytics";
 import { formatCount } from "@/lib/format";
-import { coveredFipsForFilter, isCoveredState, marketForState, US_STATES_GEO_URL } from "@/lib/iso-states";
+import { coveredFipsForFilter, formatMarketsForState, isCoveredState, US_STATES_GEO_URL } from "@/lib/iso-states";
 import { FIPS_TO_STATE_NAME, heatColor } from "@/lib/state-geo";
 import type { QueueProject } from "@/lib/types";
 
@@ -27,8 +27,7 @@ function stateDetail(
     return { fips, name, detail: "Outside tracked ISO/RTO footprint" };
   }
   const count = countsByFips[fips] ?? 0;
-  const iso = marketForState(fips);
-  const isoLabel = iso ?? (count > 0 ? "queue data" : "");
+  const isoLabel = formatMarketsForState(fips, market) || (count > 0 ? "queue data" : "");
   return {
     fips,
     name,
@@ -83,9 +82,9 @@ export const ProjectHeatmapMap = memo(function ProjectHeatmapMap({
               </span>
             ) : (
               <span className="text-[#787774]">
-                Shaded states are in a tracked ISO footprint or have projects in our queue data.
-                Gray states are outside current coverage (e.g. Southeast, WECC). Tap a state for
-                counts.
+                Shaded states fall in a tracked ISO/RTO footprint (overlaps shown in tooltips) or
+                have projects in our data. Gray states are outside coverage (e.g. Southeast, WECC).
+                Tap a state for counts.
               </span>
             )}
           </p>
