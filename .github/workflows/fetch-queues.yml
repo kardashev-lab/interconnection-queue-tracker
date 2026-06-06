@@ -1,4 +1,4 @@
-name: Fetch ISO queuess
+name: Fetch ISO queues2
 
 on:
   schedule:
