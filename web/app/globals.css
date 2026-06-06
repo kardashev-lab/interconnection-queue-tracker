@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+:root {
+  --canvas: #f7f6f3;
+  --surface: #ffffff;
+  --ink: #2f3437;
+  --muted: #787774;
+  --border: #eaeaea;
+  --accent: #1f6c9f;
+}
+
+html {
+  @apply antialiased;
+}
+
+body {
+  background-color: var(--canvas);
+  background-image:
+    linear-gradient(rgba(247, 246, 243, 0.92), rgba(247, 246, 243, 0.96)),
+    url("/images/hero-transmission.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: var(--ink);
+  font-family: var(--font-geist-sans), "Helvetica Neue", sans-serif;
+}
+
+/* Opaque panels — background photo must not bleed through content */
+.surface {
+  background-color: var(--surface);
+}
+
+::selection {
+  background-color: #e1f3fe;
+  color: var(--ink);
+}
+
+.font-metric {
+  font-family: var(--font-geist-mono), "SF Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Fixed grain — not on scroll containers (per perf guardrails) */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}

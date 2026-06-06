@@ -1,0 +1,97 @@
+[
+  {
+    "id": "ercot-large-load",
+    "market": "ERCOT",
+    "category": "Large load queue",
+    "headline": "Large-load applications continue to stay elevated",
+    "status": "Active",
+    "pressure": 97,
+    "updated": "2026-02-01",
+    "queueMw": 239000,
+    "requestCount": 400,
+    "metrics": [
+      { "label": "Queue MW", "value": "239,000 MW" },
+      { "label": "Requests", "value": "400" },
+      { "label": "Peak multiple", "value": "2.8x system peak" }
+    ],
+    "summary": "ERCOT's 2026 annual report says the large-load interconnection queue contained roughly 400 requests totaling about 239 GW-equivalent demand.",
+    "sourceLabel": "ERCOT Annual Report - 2025",
+    "sourceUrl": "https://www.ercot.com/files/docs/2026/03/19/2025-ERCOT-Annual-Report-Final-Single-Pages-March-19-2026.pdf",
+    "dataMode": "curated"
+  },
+  {
+    "id": "pjm-transition-queue",
+    "market": "PJM",
+    "category": "Transition queue",
+    "headline": "Remaining transition queue after reform",
+    "status": "Active",
+    "pressure": 84,
+    "updated": "2025-06-01",
+    "queueMw": 63000,
+    "metrics": [
+      { "label": "Remaining queue", "value": "63,000 MW" },
+      { "label": "Agreements", "value": "46,000 MW" },
+      { "label": "Studied since reform", "value": "140,000 MW" }
+    ],
+    "summary": "PJM says the transition queue has been reduced to about 63 GW and that the remaining projects will be processed in 2025 and 2026.",
+    "sourceLabel": "PJM interconnection reform progress fact sheet",
+    "sourceUrl": "https://www.pjm.com/-/media/DotCom/about-pjm/newsroom/fact-sheets/interconnection-reform-progress-fact-sheet.pdf",
+    "dataMode": "curated"
+  },
+  {
+    "id": "pjm-cycle-1",
+    "market": "PJM",
+    "category": "Cycle 1 new process",
+    "headline": "First cycle under the reformed process",
+    "status": "Active",
+    "pressure": 76,
+    "updated": "2026-05-14",
+    "requestCount": 81,
+    "queueMw": 13600,
+    "metrics": [
+      { "label": "NSRs", "value": "81" },
+      { "label": "MFO", "value": "13,600.0 MW" },
+      { "label": "CIRs", "value": "6,315.9 MW" }
+    ],
+    "summary": "PJM's Transition Cycle 1 executive summary reports 81 new service requests with a combined maximum facility output of 13.6 GW.",
+    "sourceLabel": "PJM Transition Cycle 1 Executive Summary",
+    "sourceUrl": "https://www.pjm.com/pjmfiles/pub/planning/project-queues/Cluster-Reports/TC1/TC1_FINAL_Executive_Summary.htm",
+    "dataMode": "curated"
+  },
+  {
+    "id": "caiso-public-report",
+    "market": "CAISO",
+    "category": "Generator queue report",
+    "headline": "Public queue report posted with active project table",
+    "status": "Active",
+    "pressure": 61,
+    "updated": "2026-05-17",
+    "metrics": [
+      { "label": "Report run", "value": "2026-05-17" },
+      { "label": "Report size", "value": "2.60 MB" },
+      { "label": "Active rows", "value": "Public project table" }
+    ],
+    "summary": "CAISO continues to publish a public queue report with active project-level rows, deliverability status, and study-stage information.",
+    "sourceLabel": "CAISO public queue report library",
+    "sourceUrl": "https://www.caiso.com/library/public-queue-report",
+    "dataMode": "curated"
+  },
+  {
+    "id": "miso-large-load",
+    "market": "MISO",
+    "category": "Large load requirements",
+    "headline": "Large-load reliability rules are being defined",
+    "status": "Active",
+    "pressure": 68,
+    "updated": "2026-04-24",
+    "metrics": [
+      { "label": "Phase", "value": "D" },
+      { "label": "Next update", "value": "Q2 2026" },
+      { "label": "Scope", "value": "MISO-wide" }
+    ],
+    "summary": "MISO's public dashboard shows active work on large-load interconnection reliability requirements, including ramping, ride-through, and modeling criteria.",
+    "sourceLabel": "MISO Dashboard - Large Load Interconnection Reliability Requirements",
+    "sourceUrl": "https://www.misoenergy.org/engage/MISO-Dashboard/large-load-interconnection-reliability-requirements/",
+    "dataMode": "curated"
+  }
+]

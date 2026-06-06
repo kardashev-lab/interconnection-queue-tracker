@@ -1,0 +1,59 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: queue
+      POSTGRES_USER: queue
+      POSTGRES_PASSWORD: queue
+    ports:
+      - '5434:5432'
+    volumes:
+      - queue_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U queue -d queue']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    ports:
+      - '3000:3000'
+    environment:
+      DATABASE_URL: postgres://queue:queue@postgres:5432/queue
+      CURATED_PATH: /app/web/data/curated.json
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  fetcher:
+    build:
+      context: ./services/fetcher
+    environment:
+      DATABASE_URL: postgres://queue:queue@postgres:5432/queue
+      FETCH_MARKETS: MISO,ERCOT,PJM,CAISO,SPP,NYISO,ISO-NE
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - fetch
+
+  fetcher-cron:
+    build:
+      context: ./services/fetcher
+      dockerfile: Dockerfile.cron
+    environment:
+      DATABASE_URL: postgres://queue:queue@postgres:5432/queue
+      FETCH_MARKETS: MISO,ERCOT,PJM,CAISO,SPP,NYISO,ISO-NE
+      FETCH_CRON: "0 6 * * *"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - cron
+
+volumes:
+  queue_pg:
