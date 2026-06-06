@@ -1,12 +1,18 @@
 import { MarketIcon } from "@/components/market-icon";
 import { marketMeta, sortMarkets } from "@/lib/markets";
 
-export function TrackedMarketsStrip({ markets }: { markets: string[] }) {
+export function TrackedMarketsStrip({
+  markets,
+  className = "",
+}: {
+  markets: string[];
+  className?: string;
+}) {
   const ordered = sortMarkets(markets);
 
   return (
     <div
-      className="mt-4 flex flex-wrap items-center gap-2"
+      className={`flex flex-wrap items-center gap-2 ${className}`}
       aria-label="Tracked ISO/RTO markets"
     >
       {ordered.map((market) => {

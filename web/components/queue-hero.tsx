@@ -25,57 +25,49 @@ export function QueueHero({
         <div className="absolute inset-0 bg-gradient-to-t from-[#f7f6f3] via-white/40 to-white/30" />
       </div>
 
-      <div className="relative mx-auto max-w-5xl px-5 py-8 sm:py-10">
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-xl">
-            <h1 className="text-3xl font-medium tracking-tight text-[#2f3437] sm:text-4xl">
-              US Interconnection Queue
-            </h1>
-            <p className="mt-3 text-sm leading-relaxed text-[#787774] sm:text-[15px]">
-              Where new power is waiting to connect — queue size, fuel mix, and market signals
-              across ISO/RTO territories.
-            </p>
+      <div className="relative mx-auto max-w-5xl px-5 py-10 sm:py-12">
+        <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-stretch lg:gap-10">
+            <div className="flex max-w-xl flex-1 flex-col justify-center lg:py-2">
+              <h1 className="text-3xl font-medium tracking-tight text-[#2f3437] sm:text-4xl">
+                US Interconnection Queue
+              </h1>
+              <p className="mt-3 text-sm leading-relaxed text-[#787774] sm:text-[15px]">
+                Where new power is waiting to connect — queue size, fuel mix, and market signals
+                across ISO/RTO territories.
+              </p>
+            </div>
+
+            {liveTotals && (
+              <div className="surface grid shrink-0 grid-cols-1 divide-y divide-[#eaeaea] border border-[#eaeaea] sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+                <HeroStat label="Queued" value={formatMw(liveTotals.totalMw)} />
+                <HeroStat label="Projects" value={formatCount(liveTotals.projectCount)} />
+                <HeroStat label="Markets" value={String(liveMarkets.length)} />
+              </div>
+            )}
           </div>
 
           {liveTotals && (
-            <dl className="surface grid shrink-0 grid-cols-1 divide-y divide-[#eaeaea] border border-[#eaeaea] sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-              <div className="px-4 py-3.5 sm:px-5">
-                <dt className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#787774]">
-                  Queued
-                </dt>
-                <dd className="mt-1 font-metric text-xl text-[#2f3437] sm:text-2xl">
-                  {formatMw(liveTotals.totalMw)}
-                </dd>
-              </div>
-              <div className="px-4 py-3.5 sm:px-5">
-                <dt className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#787774]">
-                  Projects
-                </dt>
-                <dd className="mt-1 font-metric text-xl text-[#2f3437] sm:text-2xl">
-                  {formatCount(liveTotals.projectCount)}
-                </dd>
-              </div>
-              <div className="px-4 py-3.5 sm:px-5">
-                <dt className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#787774]">
-                  Markets
-                </dt>
-                <dd className="mt-1 font-metric text-xl text-[#2f3437] sm:text-2xl">
-                  {liveMarkets.length}
-                </dd>
-              </div>
-            </dl>
+            <div className="space-y-3 border-t border-[#eaeaea] pt-8">
+              <p className="font-metric text-xs text-[#787774]">
+                Updated {formatDate(liveTotals.lastFetched)}
+              </p>
+              <TrackedMarketsStrip markets={liveMarkets} className="sm:flex-nowrap" />
+            </div>
           )}
         </div>
-
-        {liveTotals && (
-          <div className="mt-6">
-            <p className="font-metric text-xs text-[#787774]">
-              Updated {formatDate(liveTotals.lastFetched)}
-            </p>
-            <TrackedMarketsStrip markets={liveMarkets} />
-          </div>
-        )}
       </div>
     </header>
+  );
+}
+
+function HeroStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex min-h-[5.5rem] flex-col items-center justify-center px-5 py-4 text-center sm:min-h-[6.25rem] sm:px-6">
+      <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#787774]">
+        {label}
+      </p>
+      <p className="mt-1.5 font-metric text-xl text-[#2f3437] sm:text-2xl">{value}</p>
+    </div>
   );
 }

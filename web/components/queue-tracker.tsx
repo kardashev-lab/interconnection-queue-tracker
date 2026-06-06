@@ -56,9 +56,9 @@ export function QueueTracker({ initial }: { initial: QueuePayload }) {
       <QueueHero liveTotals={liveTotals} liveMarkets={liveMarkets} />
 
       {/* Canvas break between header photo and body background */}
-      <div className="h-10 bg-[#f7f6f3] sm:h-14" aria-hidden />
+      <div className="h-4 bg-[#f7f6f3] sm:h-5" aria-hidden />
 
-      <main className="mx-auto max-w-5xl space-y-10 px-5 pb-8 pt-2">
+      <main className="mx-auto max-w-5xl space-y-10 px-5 py-8">
         {hasLiveDashboard ? (
           <>
             <QueueBriefing liveTotals={liveTotals} insights={insights} />
