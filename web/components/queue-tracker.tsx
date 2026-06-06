@@ -125,7 +125,7 @@ export function QueueTracker({ initial }: { initial: QueuePayload }) {
                 <button
                   type="button"
                   onClick={() => setShowLookup((open) => !open)}
-                  className="border border-[#eaeaea] bg-white px-3 py-2 text-sm text-[#2f3437] hover:bg-[#f7f6f3]"
+                  className="min-h-11 border border-[#eaeaea] bg-white px-4 py-2.5 text-sm text-[#2f3437] hover:bg-[#f7f6f3] active:scale-[0.98]"
                 >
                   {showLookup ? "Hide table" : "Show project table"}
                 </button>
@@ -134,7 +134,7 @@ export function QueueTracker({ initial }: { initial: QueuePayload }) {
               {showLookup && (
                 <>
                   <nav
-                    className="mt-4 flex flex-wrap gap-0 border-b border-[#eaeaea]"
+                    className="mt-4 flex gap-0 overflow-x-auto border-b border-[#eaeaea] [-webkit-overflow-scrolling:touch] sm:flex-wrap sm:overflow-visible"
                     aria-label="Filter by ISO"
                     role="tablist"
                   >
@@ -260,7 +260,7 @@ function MarketTab({
       role="tab"
       aria-selected={active}
       onClick={onClick}
-      className={`-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm transition-colors active:scale-[0.98] sm:px-4 ${
+      className={`-mb-px inline-flex shrink-0 items-center gap-1.5 border-b-2 px-3 py-3 text-sm transition-colors active:scale-[0.98] sm:px-4 ${
         active
           ? "border-[#2f3437] font-medium text-[#2f3437]"
           : "border-transparent text-[#787774] hover:text-[#2f3437]"

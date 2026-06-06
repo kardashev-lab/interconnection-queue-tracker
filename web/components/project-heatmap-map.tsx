@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 import { countProjectsByFips } from "@/lib/analytics";
 import { formatCount } from "@/lib/format";
@@ -10,10 +10,30 @@ import type { QueueProject } from "@/lib/types";
 
 const UNCOVERED_FILL = "#f7f6f3";
 
-type HoverState = {
+type StateDetail = {
+  fips: string;
   name: string;
   detail: string;
 };
+
+function stateDetail(
+  fips: string,
+  name: string,
+  market: string | undefined,
+  countsByFips: Record<string, number>,
+): StateDetail {
+  const covered = isCoveredState(fips, market);
+  if (!covered) {
+    return { fips, name, detail: "Outside tracked ISO/RTO footprint" };
+  }
+  const count = countsByFips[fips] ?? 0;
+  const iso = marketForState(fips);
+  return {
+    fips,
+    name,
+    detail: `${formatCount(count)} projects${iso ? ` · ${iso}` : ""}`,
+  };
+}
 
 export const ProjectHeatmapMap = memo(function ProjectHeatmapMap({
   projects,
@@ -24,9 +44,15 @@ export const ProjectHeatmapMap = memo(function ProjectHeatmapMap({
   market?: string;
   className?: string;
 }) {
-  const [hover, setHover] = useState<HoverState | null>(null);
+  const [hover, setHover] = useState<StateDetail | null>(null);
+  const [selected, setSelected] = useState<StateDetail | null>(null);
 
   const coveredFips = useMemo(() => coveredFipsForFilter(market), [market]);
+
+  useEffect(() => {
+    setSelected(null);
+    setHover(null);
+  }, [market]);
 
   const countsByFips = useMemo(
     () => countProjectsByFips(projects, market),
@@ -39,6 +65,7 @@ export const ProjectHeatmapMap = memo(function ProjectHeatmapMap({
   }, [countsByFips, coveredFips]);
 
   const titled = market && market !== "all" ? `${market} projects by state` : "Projects by state";
+  const activeState = selected ?? hover;
 
   return (
     <div className={`flex min-h-0 flex-col ${className}`}>
@@ -48,13 +75,14 @@ export const ProjectHeatmapMap = memo(function ProjectHeatmapMap({
             {titled}
           </h2>
           <p className="mt-2 min-h-12 text-sm leading-relaxed">
-            {hover ? (
+            {activeState ? (
               <span className="font-metric text-[#2f3437]">
-                {hover.name}: {hover.detail}
+                {activeState.name}: {activeState.detail}
               </span>
             ) : (
               <span className="text-[#787774]">
-                Heatmap covers ISO/RTO footprint only — gray states are outside tracked markets
+                Heatmap covers ISO/RTO footprint only — gray states are outside tracked markets.
+                Tap a state to see project counts.
               </span>
             )}
           </p>
@@ -93,26 +121,27 @@ export const ProjectHeatmapMap = memo(function ProjectHeatmapMap({
                 const covered = isCoveredState(fips, market);
                 const count = covered ? (countsByFips[fips] ?? 0) : 0;
                 const fill = covered ? heatColor(count, maxCount) : UNCOVERED_FILL;
+                const isSelected = selected?.fips === fips;
 
                 return (
                   <Geography
                     key={geo.rsmKey}
                     geography={geo}
                     fill={fill}
-                    stroke="#eaeaea"
-                    strokeWidth={covered ? 0.6 : 0.4}
+                    stroke={isSelected ? "#2f3437" : "#eaeaea"}
+                    strokeWidth={isSelected ? 1.2 : covered ? 0.6 : 0.4}
                     onMouseEnter={() => {
-                      if (!covered) {
-                        setHover({ name, detail: "Outside tracked ISO/RTO footprint" });
-                        return;
-                      }
-                      const iso = marketForState(fips);
-                      setHover({
-                        name,
-                        detail: `${formatCount(count)} projects${iso ? ` · ${iso}` : ""}`,
-                      });
+                      setHover(stateDetail(fips, name, market, countsByFips));
                     }}
                     onMouseLeave={() => setHover(null)}
+                    {...({
+                      onClick: () => {
+                        const detail = stateDetail(fips, name, market, countsByFips);
+                        setSelected((current) =>
+                          current?.fips === detail.fips ? null : detail,
+                        );
+                      },
+                    } as { onClick: () => void })}
                     style={{
                       default: { outline: "none", cursor: covered ? "pointer" : "default" },
                       hover: {

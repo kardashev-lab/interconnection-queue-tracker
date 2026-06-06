@@ -24,6 +24,14 @@ body {
   background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-geist-sans), "Helvetica Neue", sans-serif;
+  overflow-x: hidden;
+}
+
+/* iOS Safari: fixed backgrounds cause jank and rendering bugs */
+@media (max-width: 768px), (hover: none) {
+  body {
+    background-attachment: scroll;
+  }
 }
 
 /* Opaque panels — background photo must not bleed through content */

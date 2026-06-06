@@ -39,7 +39,7 @@ export function MarketOverview({
               key={stat.market}
               type="button"
               onClick={() => onSelectMarket(stat.market)}
-              className={`surface border px-4 py-4 text-left transition-[border-color,box-shadow] hover:border-[#2f3437] hover:shadow-sm ${
+              className={`surface min-h-11 border px-4 py-4 text-left transition-[border-color,box-shadow] hover:border-[#2f3437] hover:shadow-sm active:scale-[0.99] ${
                 active ? "border-[#2f3437] shadow-sm" : "border-[#eaeaea]"
               }`}
             >
@@ -70,7 +70,7 @@ export function MarketOverview({
                     target="_blank"
                     rel="noreferrer"
                     onClick={(event) => event.stopPropagation()}
-                    className="text-[#1f6c9f] hover:underline"
+                    className="inline-block py-1 text-[#1f6c9f] hover:underline"
                   >
                     {source.label}
                   </a>

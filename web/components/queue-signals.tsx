@@ -50,7 +50,7 @@ export function QueueSignals({ rows }: { rows: QueueRow[] }) {
                     href={row.sourceUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-xs text-[#1f6c9f] hover:underline"
+                    className="inline-block py-1 text-xs text-[#1f6c9f] hover:underline"
                   >
                     {row.sourceLabel ?? "Source"}
                   </a>

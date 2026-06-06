@@ -61,7 +61,7 @@ export const MARKET_META: Record<
     icon: "/images/markets/pjm.png",
     iconAspect: 263 / 97,
     sourceLabel: "PJM interconnection queue",
-    sourceUrl: "https://www.pjm.com/planning/service-requests/interconnection-queues.aspx",
+    sourceUrl: "https://www.pjm.com/planning/service-requests",
   },
   CAISO: {
     region: "California",
@@ -105,6 +105,16 @@ export const MARKET_META: Record<
   },
 };
 
+/** Retired ISO URLs still stored in older snapshots. */
+const SOURCE_URL_OVERRIDES: Record<string, string> = {
+  "https://www.pjm.com/planning/service-requests/interconnection-queues.aspx":
+    "https://www.pjm.com/planning/service-requests",
+};
+
+function normalizeSourceUrl(url: string): string {
+  return SOURCE_URL_OVERRIDES[url] ?? url;
+}
+
 export function marketMeta(market: string) {
   return (
     MARKET_META[market] ?? {
@@ -132,13 +142,13 @@ export function marketSource(market: string, rows?: QueueRow[]): MarketSource | 
   if (liveRow?.sourceUrl) {
     return {
       label: liveRow.sourceLabel ?? liveRow.sourceUrl,
-      url: liveRow.sourceUrl,
+      url: normalizeSourceUrl(liveRow.sourceUrl),
     };
   }
 
   const meta = MARKET_META[market];
   if (meta?.sourceUrl) {
-    return { label: meta.sourceLabel, url: meta.sourceUrl };
+    return { label: meta.sourceLabel, url: normalizeSourceUrl(meta.sourceUrl) };
   }
 
   return null;

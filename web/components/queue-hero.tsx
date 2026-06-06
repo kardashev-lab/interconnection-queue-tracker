@@ -38,8 +38,8 @@ export function QueueHero({
           </div>
 
           {liveTotals && (
-            <dl className="surface grid shrink-0 grid-cols-3 divide-x divide-[#eaeaea] border border-[#eaeaea]">
-              <div className="px-4 py-3 sm:px-5">
+            <dl className="surface grid shrink-0 grid-cols-1 divide-y divide-[#eaeaea] border border-[#eaeaea] sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+              <div className="px-4 py-3.5 sm:px-5">
                 <dt className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#787774]">
                   Queued
                 </dt>
@@ -47,7 +47,7 @@ export function QueueHero({
                   {formatMw(liveTotals.totalMw)}
                 </dd>
               </div>
-              <div className="px-4 py-3 sm:px-5">
+              <div className="px-4 py-3.5 sm:px-5">
                 <dt className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#787774]">
                   Projects
                 </dt>
@@ -55,7 +55,7 @@ export function QueueHero({
                   {formatCount(liveTotals.projectCount)}
                 </dd>
               </div>
-              <div className="px-4 py-3 sm:px-5">
+              <div className="px-4 py-3.5 sm:px-5">
                 <dt className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#787774]">
                   Markets
                 </dt>

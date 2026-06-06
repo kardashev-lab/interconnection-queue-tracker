@@ -64,68 +64,78 @@ export function ProjectsTable({
               setQuery(e.target.value);
               setPage(1);
             }}
-            className="w-full border border-[#eaeaea] bg-white px-3 py-2 text-sm text-[#2f3437] outline-none placeholder:text-[#b8b4af] focus:border-[#2f3437]"
+            className="min-h-11 w-full border border-[#eaeaea] bg-white px-3 py-2.5 text-base text-[#2f3437] outline-none placeholder:text-[#b8b4af] focus:border-[#2f3437] sm:text-sm"
           />
         </label>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-[#eaeaea] text-[10px] font-medium uppercase tracking-[0.1em] text-[#787774]">
-              {showMarket && <th className="py-3 pr-4 font-medium">ISO</th>}
-              <th className="py-3 pr-4 font-medium">Project</th>
-              <th className="py-3 pr-4 font-medium">Queue ID</th>
-              <th className="py-3 pr-4 font-medium text-right">MW</th>
-              <th className="py-3 pr-4 font-medium">Fuel</th>
-              <th className="py-3 pr-4 font-medium">Status</th>
-              <th className="py-3 font-medium">State</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#eaeaea]">
-            {visible.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={showMarket ? 7 : 6}
-                  className="py-10 text-center text-sm text-[#787774]"
-                >
-                  No projects match your search.
-                </td>
-              </tr>
-            ) : (
-              visible.map((project) => (
-                <tr key={`${project.market}-${project.queueId}`} className="hover:bg-[#f7f6f3]/60">
-                  {showMarket && (
-                    <td className="py-3 pr-4">
-                      <span className="inline-flex items-center gap-1.5 font-metric text-xs text-[#787774]">
-                        <MarketIcon market={project.market} size={16} />
-                        {project.market}
-                      </span>
-                    </td>
-                  )}
-                  <td className="max-w-xs py-3 pr-4 text-[#2f3437]">{project.projectName || "—"}</td>
-                  <td className="py-3 pr-4 font-metric text-xs text-[#787774]">{project.queueId}</td>
-                  <td className="py-3 pr-4 text-right font-metric text-[#2f3437]">
-                    {project.mw ? formatMw(project.mw) : "—"}
-                  </td>
-                  <td className="py-3 pr-4">
-                    {project.fuel ? (
-                      <span className="inline-flex items-center gap-1.5 text-[#2f3437]">
-                        <span className={`size-2 rounded-sm ${fuelColor(project.fuel)}`} />
-                        {project.fuel}
-                      </span>
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                  <td className="py-3 pr-4 text-[#787774]">{project.status || "—"}</td>
-                  <td className="py-3 text-[#787774]">{project.state || "—"}</td>
+      {visible.length === 0 ? (
+        <p className="py-10 text-center text-sm text-[#787774]">No projects match your search.</p>
+      ) : (
+        <>
+          <ul className="divide-y divide-[#eaeaea] md:hidden">
+            {visible.map((project) => (
+              <li key={`${project.market}-${project.queueId}-card`}>
+                <ProjectCard project={project} showMarket={showMarket} />
+              </li>
+            ))}
+          </ul>
+
+          <div className="hidden overflow-x-auto md:block">
+            <table className="min-w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-[#eaeaea] text-[10px] font-medium uppercase tracking-[0.1em] text-[#787774]">
+                  {showMarket && <th className="py-3 pr-4 font-medium">ISO</th>}
+                  <th className="py-3 pr-4 font-medium">Project</th>
+                  <th className="py-3 pr-4 font-medium">Queue ID</th>
+                  <th className="py-3 pr-4 font-medium text-right">MW</th>
+                  <th className="py-3 pr-4 font-medium">Fuel</th>
+                  <th className="py-3 pr-4 font-medium">Status</th>
+                  <th className="py-3 font-medium">State</th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              </thead>
+              <tbody className="divide-y divide-[#eaeaea]">
+                {visible.map((project) => (
+                  <tr
+                    key={`${project.market}-${project.queueId}`}
+                    className="hover:bg-[#f7f6f3]/60"
+                  >
+                    {showMarket && (
+                      <td className="py-3 pr-4">
+                        <span className="inline-flex items-center gap-1.5 font-metric text-xs text-[#787774]">
+                          <MarketIcon market={project.market} size={16} />
+                          {project.market}
+                        </span>
+                      </td>
+                    )}
+                    <td className="max-w-xs py-3 pr-4 text-[#2f3437]">
+                      {project.projectName || "—"}
+                    </td>
+                    <td className="py-3 pr-4 font-metric text-xs text-[#787774]">
+                      {project.queueId}
+                    </td>
+                    <td className="py-3 pr-4 text-right font-metric text-[#2f3437]">
+                      {project.mw ? formatMw(project.mw) : "—"}
+                    </td>
+                    <td className="py-3 pr-4">
+                      {project.fuel ? (
+                        <span className="inline-flex items-center gap-1.5 text-[#2f3437]">
+                          <span className={`size-2 rounded-sm ${fuelColor(project.fuel)}`} />
+                          {project.fuel}
+                        </span>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                    <td className="py-3 pr-4 text-[#787774]">{project.status || "—"}</td>
+                    <td className="py-3 text-[#787774]">{project.state || "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
 
       <div className="mt-4 flex flex-col gap-3 border-t border-[#eaeaea] pt-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="font-metric text-xs text-[#787774]">
@@ -159,6 +169,66 @@ export function ProjectsTable({
   );
 }
 
+function ProjectCard({
+  project,
+  showMarket,
+}: {
+  project: QueueProject;
+  showMarket: boolean;
+}) {
+  return (
+    <article className="py-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          {showMarket && (
+            <p className="mb-1 inline-flex items-center gap-1.5 font-metric text-xs text-[#787774]">
+              <MarketIcon market={project.market} size={16} />
+              {project.market}
+            </p>
+          )}
+          <h3 className="text-sm font-medium text-[#2f3437]">
+            {project.projectName || "Unnamed project"}
+          </h3>
+          <p className="mt-0.5 font-metric text-xs text-[#787774]">{project.queueId}</p>
+        </div>
+        <p className="shrink-0 font-metric text-sm text-[#2f3437]">
+          {project.mw ? formatMw(project.mw) : "—"}
+        </p>
+      </div>
+
+      <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+        <div>
+          <dt className="text-[10px] font-medium uppercase tracking-[0.08em] text-[#787774]">
+            Fuel
+          </dt>
+          <dd className="mt-0.5 text-[#2f3437]">
+            {project.fuel ? (
+              <span className="inline-flex items-center gap-1.5">
+                <span className={`size-2 rounded-sm ${fuelColor(project.fuel)}`} />
+                {project.fuel}
+              </span>
+            ) : (
+              "—"
+            )}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-[10px] font-medium uppercase tracking-[0.08em] text-[#787774]">
+            State
+          </dt>
+          <dd className="mt-0.5 text-[#2f3437]">{project.state || "—"}</dd>
+        </div>
+        <div className="col-span-2">
+          <dt className="text-[10px] font-medium uppercase tracking-[0.08em] text-[#787774]">
+            Status
+          </dt>
+          <dd className="mt-0.5 leading-relaxed text-[#787774]">{project.status || "—"}</dd>
+        </div>
+      </dl>
+    </article>
+  );
+}
+
 function PaginationButton({
   onClick,
   disabled,
@@ -173,7 +243,7 @@ function PaginationButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="border border-[#eaeaea] bg-white px-3 py-1.5 text-xs text-[#2f3437] transition-colors hover:bg-[#f7f6f3] disabled:cursor-not-allowed disabled:opacity-40"
+      className="min-h-11 border border-[#eaeaea] bg-white px-4 py-2 text-xs text-[#2f3437] transition-colors hover:bg-[#f7f6f3] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
     >
       {children}
     </button>

@@ -49,7 +49,7 @@ MARKET_CONFIG: dict[str, dict[str, Any]] = {
         "snapshot_id": "pjm-gi-queue",
         "category": "Generator interconnection queue",
         "source_label": "PJM interconnection queue",
-        "source_url": "https://www.pjm.com/planning/service-requests/interconnection-queues.aspx",
+        "source_url": "https://www.pjm.com/planning/service-requests",
     },
     "CAISO": {
         "cls": gridstatus.CAISO,
