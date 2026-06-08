@@ -85,7 +85,7 @@ DEFAULT_MARKETS = ",".join(MARKET_CONFIG.keys())
 
 # Public subscription key from PJM's interconnection queue web app (not a member API key).
 PJM_QUEUE_EXPORT_URL = "https://services.pjm.com/PJMPlanningApi/api/Queue/ExportToXls"
-PJM_QUEUE_SUBSCRIPTION_KEY = "E29477D0-70E0-4825-89B0-43F460BF9AB4"
+PJM_QUEUE_SUBSCRIPTION_KEY = os.environ.get("PJM_QUEUE_SUBSCRIPTION_KEY", "")
 
 # NYISO serves this xlsx asynchronously — HTTP 202 until the file is ready.
 NYISO_QUEUE_URL = (
@@ -235,6 +235,8 @@ def build_snapshot(
 
 def fetch_pjm_public_queue() -> pd.DataFrame:
     """Fetch PJM queue via the public planning export (no member API key)."""
+    if not PJM_QUEUE_SUBSCRIPTION_KEY:
+        raise RuntimeError("PJM_QUEUE_SUBSCRIPTION_KEY env var is required for PJM fetch")
     response = requests.post(
         PJM_QUEUE_EXPORT_URL,
         headers={

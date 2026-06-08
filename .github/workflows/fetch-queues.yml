@@ -37,5 +37,6 @@ jobs:
       - name: Fetch all ISO/RTO queues
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          PJM_QUEUE_SUBSCRIPTION_KEY: ${{ secrets.PJM_QUEUE_SUBSCRIPTION_KEY }}
           FETCH_MARKETS: ERCOT,MISO,PJM,CAISO,SPP,NYISO,ISO-NE
         run: python services/fetcher/fetch.py
