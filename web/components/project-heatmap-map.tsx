@@ -46,6 +46,15 @@ export const ProjectHeatmapMap = memo(function ProjectHeatmapMap({
 }) {
   const [hover, setHover] = useState<StateDetail | null>(null);
   const [selected, setSelected] = useState<StateDetail | null>(null);
+  const [coarsePointer, setCoarsePointer] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(pointer: coarse)");
+    const update = () => setCoarsePointer(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   const countsByFips = useMemo(
     () => countProjectsByFips(projects, market),
@@ -105,7 +114,7 @@ export const ProjectHeatmapMap = memo(function ProjectHeatmapMap({
         </div>
       </div>
 
-      <div className="mt-3 min-h-0 flex-1">
+      <div className="mt-3 min-h-0 flex-1" style={{ touchAction: "manipulation" }}>
         <ComposableMap
           projection="geoAlbersUsa"
           width={800}
@@ -129,7 +138,7 @@ export const ProjectHeatmapMap = memo(function ProjectHeatmapMap({
                     geography={geo}
                     fill={fill}
                     stroke={isSelected ? "#2f3437" : "#eaeaea"}
-                    strokeWidth={isSelected ? 1.2 : covered ? 0.6 : 0.4}
+                    strokeWidth={isSelected ? 1.4 : covered ? (coarsePointer ? 2 : 0.6) : 0.4}
                     onMouseEnter={() => {
                       setHover(stateDetail(fips, name, market, countsByFips));
                     }}
