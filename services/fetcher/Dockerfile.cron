@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY fetch.py cron-entrypoint.sh ./
+COPY fetch.py schema.sql cron-entrypoint.sh ./
 RUN chmod +x /app/cron-entrypoint.sh
 
 CMD ["/app/cron-entrypoint.sh"]

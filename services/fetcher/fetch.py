@@ -425,46 +425,12 @@ def process_market(conn, market: str, config: dict[str, Any]) -> None:
 
 
 def ensure_schema(conn) -> None:
+    """Apply the canonical DDL from schema.sql (the fetcher owns the schema)."""
+    schema_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "schema.sql")
+    with open(schema_path, encoding="utf-8") as f:
+        ddl = f.read()
     with conn.cursor() as cur:
-        cur.execute(
-            """
-            CREATE TABLE IF NOT EXISTS queue_projects (
-              market TEXT NOT NULL,
-              queue_id TEXT NOT NULL,
-              project_name TEXT,
-              mw NUMERIC,
-              fuel TEXT,
-              status TEXT,
-              queue_date DATE,
-              county TEXT,
-              state TEXT,
-              fetched_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-              PRIMARY KEY (market, queue_id)
-            );
-            """
-        )
-        cur.execute(
-            """
-            CREATE TABLE IF NOT EXISTS queue_market_snapshots (
-              id TEXT PRIMARY KEY,
-              market TEXT NOT NULL,
-              category TEXT NOT NULL,
-              headline TEXT,
-              status TEXT,
-              pressure INTEGER NOT NULL DEFAULT 0,
-              updated DATE,
-              queue_mw NUMERIC,
-              request_count INTEGER,
-              mix JSONB,
-              metrics JSONB,
-              summary TEXT,
-              source_label TEXT,
-              source_url TEXT,
-              data_mode TEXT NOT NULL DEFAULT 'curated',
-              fetched_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-            );
-            """
-        )
+        cur.execute(ddl)
     conn.commit()
 
 
@@ -488,6 +454,9 @@ def main() -> int:
             config = MARKET_CONFIG.get(market)
             if not config:
                 log(f"Skipping unknown market: {market} (supported: {', '.join(MARKET_CONFIG)})")
+                continue
+            if market == "PJM" and not PJM_QUEUE_SUBSCRIPTION_KEY:
+                log("Skipping PJM: PJM_QUEUE_SUBSCRIPTION_KEY is not set")
                 continue
             try:
                 process_market(conn, market, config)

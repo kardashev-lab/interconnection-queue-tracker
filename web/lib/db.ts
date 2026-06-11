@@ -17,7 +17,7 @@ function resolveCuratedPath(): string {
 }
 
 let pool: pg.Pool | null = null;
-let schemaReady: Promise<void> | null = null;
+let schemaKnownReady = false;
 
 function getPool(): pg.Pool | null {
   if (!process.env.DATABASE_URL) return null;
@@ -28,130 +28,16 @@ function getPool(): pg.Pool | null {
   return pool;
 }
 
-async function ensureSchema(): Promise<void> {
-  const db = getPool();
-  if (!db) return;
-
-  if (!schemaReady) {
-    schemaReady = (async () => {
-      await db.query(`
-        CREATE TABLE IF NOT EXISTS queue_projects (
-          market TEXT NOT NULL,
-          queue_id TEXT NOT NULL,
-          project_name TEXT,
-          mw NUMERIC,
-          fuel TEXT,
-          status TEXT,
-          queue_date DATE,
-          county TEXT,
-          state TEXT,
-          fetched_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-          PRIMARY KEY (market, queue_id)
-        );
-      `);
-      await db.query(`
-        CREATE TABLE IF NOT EXISTS queue_market_snapshots (
-          id TEXT PRIMARY KEY,
-          market TEXT NOT NULL,
-          category TEXT NOT NULL,
-          headline TEXT,
-          status TEXT,
-          pressure INTEGER NOT NULL DEFAULT 0,
-          updated DATE,
-          queue_mw NUMERIC,
-          request_count INTEGER,
-          mix JSONB,
-          metrics JSONB,
-          summary TEXT,
-          source_label TEXT,
-          source_url TEXT,
-          data_mode TEXT NOT NULL DEFAULT 'curated',
-          fetched_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-        );
-      `);
-      await seedCuratedIfEmpty(db);
-    })();
-  }
-
-  await schemaReady;
-}
-
-async function seedCuratedIfEmpty(db: pg.Pool): Promise<void> {
-  const { rows } = await db.query("SELECT COUNT(*)::int AS n FROM queue_market_snapshots");
-  if (rows[0].n > 0) return;
-
-  const curated = loadCuratedFallback();
-  for (const row of curated) {
-    await upsertSnapshot(db, row);
-  }
-}
-
-function toSnapshotRow(row: QueueRow) {
-  return {
-    id: row.id,
-    market: row.market,
-    category: row.category,
-    headline: row.headline ?? null,
-    status: row.status ?? "Active",
-    pressure: row.pressure ?? 0,
-    updated: row.updated ?? null,
-    queue_mw: row.queueMw ?? null,
-    request_count: row.requestCount ?? null,
-    mix: row.mix ? JSON.stringify(row.mix) : null,
-    metrics: row.metrics ? JSON.stringify(row.metrics) : null,
-    summary: row.summary ?? null,
-    source_label: row.sourceLabel ?? null,
-    source_url: row.sourceUrl ?? null,
-    data_mode: row.dataMode ?? "curated",
-  };
-}
-
-async function upsertSnapshot(db: pg.Pool, row: QueueRow): Promise<void> {
-  const s = toSnapshotRow(row);
-  await db.query(
-    `INSERT INTO queue_market_snapshots (
-       id, market, category, headline, status, pressure, updated,
-       queue_mw, request_count, mix, metrics, summary,
-       source_label, source_url, data_mode, fetched_at
-     ) VALUES (
-       $1, $2, $3, $4, $5, $6, $7,
-       $8, $9, $10::jsonb, $11::jsonb, $12,
-       $13, $14, $15, NOW()
-     )
-     ON CONFLICT (id) DO UPDATE SET
-       market = EXCLUDED.market,
-       category = EXCLUDED.category,
-       headline = EXCLUDED.headline,
-       status = EXCLUDED.status,
-       pressure = EXCLUDED.pressure,
-       updated = EXCLUDED.updated,
-       queue_mw = EXCLUDED.queue_mw,
-       request_count = EXCLUDED.request_count,
-       mix = EXCLUDED.mix,
-       metrics = EXCLUDED.metrics,
-       summary = EXCLUDED.summary,
-       source_label = EXCLUDED.source_label,
-       source_url = EXCLUDED.source_url,
-       data_mode = EXCLUDED.data_mode,
-       fetched_at = NOW()`,
-    [
-      s.id,
-      s.market,
-      s.category,
-      s.headline,
-      s.status,
-      s.pressure,
-      s.updated,
-      s.queue_mw,
-      s.request_count,
-      s.mix,
-      s.metrics,
-      s.summary,
-      s.source_label,
-      s.source_url,
-      s.data_mode,
-    ],
+// The fetcher owns the schema (services/fetcher/schema.sql); the web app only
+// reads. Before the first fetch run the tables won't exist yet, so check once
+// and let callers fall back to curated data instead of erroring.
+async function schemaReady(db: pg.Pool): Promise<boolean> {
+  if (schemaKnownReady) return true;
+  const { rows } = await db.query(
+    "SELECT to_regclass('queue_market_snapshots') AS snapshots, to_regclass('queue_projects') AS projects",
   );
+  schemaKnownReady = Boolean(rows[0]?.snapshots && rows[0]?.projects);
+  return schemaKnownReady;
 }
 
 function formatSnapshot(row: Record<string, unknown>): QueueRow {
@@ -195,7 +81,7 @@ export async function fetchQueueRows(): Promise<QueueRow[] | null> {
   const db = getPool();
   if (!db) return null;
 
-  await ensureSchema();
+  if (!(await schemaReady(db))) return null;
   const { rows } = await db.query(
     "SELECT * FROM queue_market_snapshots ORDER BY pressure DESC, market ASC",
   );
@@ -205,7 +91,7 @@ export async function fetchQueueRows(): Promise<QueueRow[] | null> {
 export async function hasLiveData(): Promise<boolean> {
   const db = getPool();
   if (!db) return false;
-  await ensureSchema();
+  if (!(await schemaReady(db))) return false;
   const { rows } = await db.query(
     "SELECT COUNT(*)::int AS n FROM queue_market_snapshots WHERE data_mode = 'live'",
   );
@@ -229,7 +115,7 @@ export async function fetchProjects(market?: string): Promise<QueueProject[]> {
   const db = getPool();
   if (!db) return [];
 
-  await ensureSchema();
+  if (!(await schemaReady(db))) return [];
   const params: unknown[] = [];
   let where = "";
   if (market) {
@@ -251,7 +137,7 @@ export async function fetchLiveTotals(): Promise<LiveTotals | null> {
   const db = getPool();
   if (!db) return null;
 
-  await ensureSchema();
+  if (!(await schemaReady(db))) return null;
   const { rows } = await db.query(`
     SELECT
       COUNT(*)::int AS project_count,
