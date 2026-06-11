@@ -118,7 +118,7 @@ export function QueueTracker({ initial }: { initial: QueuePayload }) {
             <section>
               <div className="flex flex-col gap-3 border-b border-[#eaeaea] pb-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <h2 className="font-display text-lg text-[#2f3437]">Project lookup</h2>
+                  <h2 className="font-display text-2xl text-[#2f3437]">Project lookup</h2>
                   <p className="mt-1.5 text-base text-[#5f5c58]">
                     Search individual queue entries when you need a specific project, ID, or status.
                   </p>
