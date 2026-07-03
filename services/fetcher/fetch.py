@@ -86,7 +86,7 @@ DEFAULT_MARKETS = ",".join(MARKET_CONFIG.keys())
 PJM_QUEUE_EXPORT_URL = "https://services.pjm.com/PJMPlanningApi/api/Queue/ExportToXls"
 PJM_QUEUE_SUBSCRIPTION_KEY = os.environ.get("PJM_QUEUE_SUBSCRIPTION_KEY", "")
 
-# NYISO serves this xlsx asynchronously — HTTP 202 until the file is ready.
+# NYISO serves this xlsx asynchronously: HTTP 202 until the file is ready.
 NYISO_QUEUE_URL = (
     "https://www.nyiso.com/documents/20142/1407078/NYISO-Interconnection-Queue.xlsx"
 )

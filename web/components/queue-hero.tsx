@@ -33,7 +33,7 @@ export function QueueHero({
                 US Interconnection Queue
               </h1>
               <p className="mt-4 text-base leading-relaxed text-[#5f5c58]">
-                Where new power is waiting to connect — queue size, fuel mix, and market signals
+                Where new power is waiting to connect: queue size, fuel mix, and market signals
                 across ISO/RTO territories.
               </p>
             </div>

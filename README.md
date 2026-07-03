@@ -1,8 +1,8 @@
 # Interconnection Queue Tracker
 
-Search **generator interconnection queue projects** across US ISOs/RTOs — the public list of power projects waiting to connect to the grid.
+Search **generator interconnection queue projects** across US ISOs/RTOs: the public list of power projects waiting to connect to the grid.
 
-**Live ISOs:** ERCOT, MISO, PJM, CAISO, SPP, NYISO, ISO-NE — each from that market’s **public queue report**, fetched directly from each ISO’s public data source.
+**Live ISOs:** ERCOT, MISO, PJM, CAISO, SPP, NYISO, ISO-NE, each from that market’s **public queue report**, fetched directly from each ISO’s public data source.
 
 ---
 
@@ -15,7 +15,7 @@ interconnection-queue-tracker/
 │   ├── components/       # UI
 │   ├── data/             # curated fallback JSON
 │   └── lib/              # DB access, analytics, markets
-├── services/fetcher/     # Python job — loads ISO feeds into Postgres
+├── services/fetcher/     # Python job: loads ISO feeds into Postgres
 ├── scripts/              # local fetch helper
 ├── docker-compose.yml
 ├── Dockerfile.web
@@ -31,7 +31,7 @@ docker compose up -d postgres
 
 cd web && cp .env.local.example .env.local && npm install && npm run dev
 
-# Load all ISO queues (~2–5 min)
+# Load all ISO queues (~2-5 min)
 docker compose --profile fetch run --rm fetcher
 ```
 
@@ -59,7 +59,7 @@ Or locally without Docker:
 | Data | Postgres (`queue_projects`, `queue_market_snapshots`) |
 | Fetcher | Python (direct ISO feeds) |
 
-The web app reads Postgres directly — no separate API service.
+The web app reads Postgres directly. No separate API service.
 
 ---
 
@@ -89,7 +89,7 @@ The web app reads Postgres directly — no separate API service.
 | `CURATED_PATH` | `./data/curated.json` | Fallback signals |
 | `NEXT_PUBLIC_SITE_URL` | `https://your-app.up.railway.app` | OG metadata |
 
-**Fetcher** — uses `DATABASE_URL` and optional `FETCH_MARKETS`.
+**Fetcher** uses `DATABASE_URL` and optional `FETCH_MARKETS`.
 
 ---
 
@@ -113,7 +113,7 @@ docker compose --profile fetch run --rm fetcher
 
 ### Scheduled fetch (daily)
 
-**GitHub Actions** — runs at **06:00 UTC**; needs repo secret `DATABASE_URL`.
+**GitHub Actions** runs at **06:00 UTC**; needs repo secret `DATABASE_URL`.
 
 **Docker cron (self-hosted):**
 

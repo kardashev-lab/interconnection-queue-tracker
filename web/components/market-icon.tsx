@@ -22,7 +22,7 @@ export function MarketIcon({ market, size = 20, className = "" }: MarketIconProp
   }
 
   return (
-    // Native img — Next/Image blocks SVGs and rasterizes poorly at chip sizes.
+    // Native img: Next/Image blocks SVGs and rasterizes poorly at chip sizes.
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={icon}

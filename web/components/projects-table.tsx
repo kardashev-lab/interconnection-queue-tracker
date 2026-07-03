@@ -139,7 +139,7 @@ export function ProjectsTable({
         <p className="font-metric text-xs text-[#787774]">
           {filtered.length === 0
             ? "0 projects"
-            : `${formatCount(pageStart)}–${formatCount(pageEnd)} of ${formatCount(filtered.length)}`}
+            : `${formatCount(pageStart)}-${formatCount(pageEnd)} of ${formatCount(filtered.length)}`}
           {query ? " matching search" : ""}
         </p>
 

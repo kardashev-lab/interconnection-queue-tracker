@@ -205,7 +205,7 @@ export function groupByMarket(rows: QueueRow[]): Map<string, QueueRow[]> {
   );
 }
 
-/** Muted fuel swatches for data viz — desaturated, not neon */
+/** Muted fuel swatches for data viz, desaturated, not neon */
 export function fuelColor(fuel: string): string {
   const key = fuel.toLowerCase().trim();
   if (key === "bat" || key === "bess") return "bg-[#a89bb8]";

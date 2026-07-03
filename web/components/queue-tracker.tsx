@@ -87,7 +87,7 @@ export function QueueTracker({ initial }: { initial: QueuePayload }) {
                   <ul className="mt-4 space-y-4 text-base leading-relaxed text-[#5f5c58]">
                   <li>
                     Interconnection queues are the bottleneck for new generation and large loads.
-                    MW sitting in queue ≠ MW getting built — study timelines and withdrawal rates
+                    MW sitting in queue ≠ MW getting built. Study timelines and withdrawal rates
                     determine what actually connects.
                   </li>
                   <li>
@@ -225,7 +225,7 @@ function EmptyState({
       <p className="mt-2 text-sm text-[#787774]">{detail}</p>
       {source === "curated-fallback" && (
         <p className="mt-2 text-xs text-[#787774]">
-          Database unavailable — showing static fallback only.
+          Database unavailable. Showing static fallback only.
         </p>
       )}
       <pre className="mx-auto mt-4 max-w-lg overflow-x-auto border border-[#eaeaea] bg-[#f7f6f3] px-4 py-3 text-left font-metric text-xs text-[#2f3437]">

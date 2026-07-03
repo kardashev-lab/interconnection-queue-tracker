@@ -13,7 +13,7 @@ export type TrackedMarket = (typeof TRACKED_MARKETS)[number];
 /**
  * States served by each tracked ISO/RTO (full or partial).
  * Sources: PJM territory served, MISO about, SPP/FERC RTO guide, CAISO/ERCOT/NYISO/ISO-NE.
- * Many states overlap — e.g. IL/IN/MI/KY are both PJM and MISO; AR/LA/MO are MISO and SPP.
+ * Many states overlap, e.g. IL/IN/MI/KY are both PJM and MISO; AR/LA/MO are MISO and SPP.
  */
 const MARKET_FOOTPRINTS: Record<TrackedMarket, readonly string[]> = {
   CAISO: ["06", "32"], // CA, NV (southern NV in CAISO BA)
@@ -94,7 +94,7 @@ function buildFipsToMarkets(): Record<string, TrackedMarket[]> {
 
 export const FIPS_TO_MARKETS: Record<string, readonly TrackedMarket[]> = buildFipsToMarkets();
 
-/** @deprecated Prefer marketsForState — kept for callers expecting a single value. */
+/** @deprecated Prefer marketsForState, kept for callers expecting a single value. */
 export function marketForState(fips: string): TrackedMarket | null {
   return marketsForState(fips)[0] ?? null;
 }

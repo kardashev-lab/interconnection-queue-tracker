@@ -8,4 +8,4 @@ npm install
 npm run dev
 ```
 
-Requires Postgres with queue data — run the fetcher from the repo root first.
+Requires Postgres with queue data. Run the fetcher from the repo root first.
