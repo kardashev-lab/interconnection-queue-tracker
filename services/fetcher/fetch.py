@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""Fetch US ISO interconnection queues via gridstatus and upsert into Postgres."""
+"""Fetch US ISO interconnection queues and upsert into Postgres."""
 
 from __future__ import annotations
 
 import io
 import json
 import os
+import re
 import sys
 import time
 import traceback
 from datetime import date
 from typing import Any
 
-import gridstatus
 import pandas as pd
 import psycopg2
 import psycopg2.extras
@@ -28,17 +28,16 @@ INACTIVE_HINTS = (
     "duplicate",
 )
 
-# gridstatus-supported interconnection queues (IESO not implemented yet)
 MARKET_CONFIG: dict[str, dict[str, Any]] = {
     "ERCOT": {
-        "cls": gridstatus.Ercot,
+        "fetch": "ercot_direct",
         "snapshot_id": "ercot-gen-queue",
         "category": "Generator interconnection queue",
-        "source_label": "ERCOT GIS Report (EMIL pg7-200-er)",
-        "source_url": "https://www.ercot.com/mp/data-products/data-product-details?id=pg7-200-er",
+        "source_label": "ERCOT GIS Report",
+        "source_url": "http://mis.ercot.com/misapp/GetReports.do?reportTypeId=15933",
     },
     "MISO": {
-        "cls": gridstatus.MISO,
+        "fetch": "miso_direct",
         "snapshot_id": "miso-gi-queue",
         "category": "Generator interconnection queue",
         "source_label": "MISO GI interactive queue",
@@ -52,14 +51,14 @@ MARKET_CONFIG: dict[str, dict[str, Any]] = {
         "source_url": "https://www.pjm.com/planning/service-requests",
     },
     "CAISO": {
-        "cls": gridstatus.CAISO,
+        "fetch": "caiso_direct",
         "snapshot_id": "caiso-gen-queue",
         "category": "Generator interconnection queue",
         "source_label": "CAISO public queue report",
         "source_url": "https://www.caiso.com/library/public-queue-report",
     },
     "SPP": {
-        "cls": gridstatus.SPP,
+        "fetch": "spp_direct",
         "snapshot_id": "spp-gi-queue",
         "category": "Generator interconnection queue",
         "source_label": "SPP generation interconnection queue",
@@ -73,11 +72,11 @@ MARKET_CONFIG: dict[str, dict[str, Any]] = {
         "source_url": "https://www.nyiso.com/interconnections",
     },
     "ISO-NE": {
-        "cls": gridstatus.ISONE,
+        "fetch": "isone_direct",
         "snapshot_id": "isone-gi-queue",
         "category": "Generator interconnection queue",
         "source_label": "ISO-NE interconnection queue",
-        "source_url": "https://www.iso-ne.com/system-planning/interconnection-service/",
+        "source_url": "https://irtt.iso-ne.com/reports/external",
     },
 }
 
@@ -282,24 +281,159 @@ def download_nyiso_xlsx(*, max_attempts: int = 12, initial_delay: int = 10) -> i
 
 def fetch_nyiso_public_queue() -> pd.DataFrame:
     raw = download_nyiso_xlsx()
-    iso = gridstatus.NYISO()
     raw.seek(0)
-    iso.get_raw_interconnection_queue = lambda: raw  # type: ignore[method-assign]
-    return iso.get_interconnection_queue()
+    active = pd.read_excel(raw, sheet_name="Interconnection Queue").drop_duplicates(
+        subset=["Queue Pos.", "Project Name"]
+    )
+    raw.seek(0)
+    cluster = pd.read_excel(raw, sheet_name=" Cluster Projects").drop_duplicates(
+        subset=["Queue Pos.", "Project Name"]
+    )
+    active_all = pd.concat([active, cluster], ignore_index=True)
+    active_all["Status"] = "Active"
+    raw.seek(0)
+    withdrawn = pd.read_excel(raw, sheet_name="Withdrawn")
+    withdrawn["Status"] = "Withdrawn"
+    df = pd.concat([active_all, withdrawn], ignore_index=True)
+    return df.rename(columns={"Queue Pos.": "Queue ID", "Date of IR": "Queue Date"})
+
+
+def fetch_miso_direct() -> pd.DataFrame:
+    resp = requests.get(
+        "https://www.misoenergy.org/api/giqueue/getprojects",
+        headers={"Accept": "application/json"},
+        timeout=120,
+    )
+    resp.raise_for_status()
+    data = resp.json()
+    df = pd.DataFrame(data)
+    if "summerNetMW" in df.columns and "winterNetMW" in df.columns:
+        df["Capacity (MW)"] = df[["summerNetMW", "winterNetMW"]].max(axis=1)
+    return df.rename(columns={
+        "projectNumber": "Queue ID",
+        "county": "County",
+        "state": "State",
+        "applicationStatus": "Status",
+        "fuelType": "Generation Type",
+    })
+
+
+def fetch_caiso_direct() -> pd.DataFrame:
+    resp = requests.get(
+        "http://www.caiso.com/PublishedDocuments/PublicQueueReport.xlsx",
+        timeout=180,
+    )
+    resp.raise_for_status()
+    raw = io.BytesIO(resp.content)
+    sheets = pd.read_excel(raw, skiprows=3, sheet_name=None)
+    queued = sheets.get("Grid GenerationQueue", pd.DataFrame())
+    if not queued.empty:
+        queued = queued.iloc[:-8]
+    completed = sheets.get("Completed Generation Projects", pd.DataFrame())
+    if not completed.empty:
+        completed = completed.iloc[:-2]
+    withdrawn = sheets.get("Withdrawn Generation Projects", pd.DataFrame())
+    if not withdrawn.empty:
+        withdrawn = withdrawn.iloc[:-2]
+        if "Project Name - Confidential" in withdrawn.columns:
+            withdrawn = withdrawn.rename(columns={"Project Name - Confidential": "Project Name"})
+    df = pd.concat([queued, completed, withdrawn], ignore_index=True)
+    type_cols = [c for c in ("Type-1", "Type-2", "Type-3") if c in df.columns]
+    if type_cols:
+        df["Generation Type"] = df[type_cols].apply(lambda x: " + ".join(x.dropna().astype(str)), axis=1)
+    return df.rename(columns={
+        "Queue Position": "Queue ID",
+        "Application Status": "Status",
+        "Net MWs to Grid": "Capacity (MW)",
+    })
+
+
+def fetch_spp_direct() -> pd.DataFrame:
+    resp = requests.get(
+        "https://opsportal.spp.org/Studies/GenerateSummaryCSV",
+        timeout=120,
+    )
+    resp.raise_for_status()
+    df = pd.read_csv(io.StringIO(resp.text), skiprows=1)
+    return df.rename(columns={
+        "Generation Interconnection Number": "Queue ID",
+        " Nearest Town or County": "County",
+        "Capacity": "Capacity (MW)",
+        "Request Received": "Queue Date",
+    })
+
+
+def fetch_ercot_direct() -> pd.DataFrame:
+    # Parse ERCOT MIS public report listing to find latest GIS Report xlsx
+    listing = requests.get(
+        "http://mis.ercot.com/misapp/GetReports.do",
+        params={"reportTypeId": 15933},
+        timeout=60,
+    )
+    listing.raise_for_status()
+    links = re.findall(r'href="([^"]*GIS_Report[^"]*\.xlsx)"', listing.text, re.IGNORECASE)
+    if not links:
+        links = re.findall(r'href="([^"]*\.xlsx)"', listing.text, re.IGNORECASE)
+    if not links:
+        raise RuntimeError("No GIS xlsx link found in ERCOT MIS listing page")
+    xlsx_url = links[0]
+    if not xlsx_url.startswith("http"):
+        xlsx_url = "http://mis.ercot.com" + xlsx_url
+    resp = requests.get(xlsx_url, timeout=180)
+    resp.raise_for_status()
+    df = pd.read_excel(io.BytesIO(resp.content), sheet_name="Project Details - Large Gen", skiprows=30).iloc[4:]
+    df["State"] = "Texas"
+    fuel_map = {"BIO": "Biomass", "COA": "Coal", "GAS": "Gas", "GEO": "Geothermal",
+                "HYD": "Hydrogen", "NUC": "Nuclear", "OIL": "Fuel Oil", "SOL": "Solar",
+                "WAT": "Water", "WIN": "Wind", "OTH": "Other"}
+    tech_map = {"BA": "Battery", "CC": "Combined-Cycle", "GT": "Gas Turbine",
+                "HY": "Hydro", "PV": "Solar PV", "WT": "Wind Turbine", "ST": "Steam", "OT": "Other"}
+    if "Fuel" in df.columns:
+        df["Fuel"] = df["Fuel"].map(fuel_map).fillna(df.get("Fuel", ""))
+    if "Technology" in df.columns:
+        df["Technology"] = df["Technology"].map(tech_map).fillna(df.get("Technology", ""))
+    if "Fuel" in df.columns and "Technology" in df.columns:
+        df["Generation Type"] = df["Fuel"].astype(str) + " - " + df["Technology"].astype(str)
+    return df.rename(columns={"INR": "Queue ID"})
+
+
+def fetch_isone_direct() -> pd.DataFrame:
+    resp = requests.get("https://irtt.iso-ne.com/reports/external", timeout=120)
+    resp.raise_for_status()
+    tables = pd.read_html(io.StringIO(resp.text), attrs={"id": "publicqueue"})
+    if not tables:
+        raise RuntimeError("publicqueue table not found on ISO-NE page")
+    df = tables[0]
+    status_map = {"W": "Withdrawn", "A": "Active", "C": "Completed"}
+    if "Status" in df.columns:
+        df["Status"] = df["Status"].map(status_map).fillna(df["Status"])
+    return df.rename(columns={
+        "QP": "Queue ID",
+        "Net MW": "Capacity (MW)",
+        "Fuel Type": "Generation Type",
+        "ST": "State",
+        "W/D Date": "Withdrawn Date",
+    })
+
+
+_FETCHER_MAP = {
+    "pjm_public":   fetch_pjm_public_queue,
+    "nyiso_public": fetch_nyiso_public_queue,
+    "miso_direct":  fetch_miso_direct,
+    "caiso_direct": fetch_caiso_direct,
+    "spp_direct":   fetch_spp_direct,
+    "ercot_direct": fetch_ercot_direct,
+    "isone_direct": fetch_isone_direct,
+}
 
 
 def fetch_market(config: dict[str, Any], market: str) -> pd.DataFrame:
     log(f"Fetching {market} interconnection queue...")
-    fetcher = config.get("fetch")
-    if fetcher == "pjm_public":
-        df = fetch_pjm_public_queue()
-    elif fetcher == "nyiso_public":
-        df = fetch_nyiso_public_queue()
-    elif callable(fetcher):
-        df = fetcher()
-    else:
-        iso = config["cls"]()
-        df = iso.get_interconnection_queue()
+    fetcher_key = config.get("fetch")
+    fetcher_fn = _FETCHER_MAP.get(fetcher_key) if fetcher_key else None
+    if fetcher_fn is None:
+        raise RuntimeError(f"No fetcher configured for {market} (key={fetcher_key!r})")
+    df = fetcher_fn()
     if "Capacity (MW)" not in df.columns:
         df["Capacity (MW)"] = df.apply(mw_value, axis=1)
     return df
