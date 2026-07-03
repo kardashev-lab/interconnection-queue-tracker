@@ -2,7 +2,7 @@
 
 Search **generator interconnection queue projects** across US ISOs/RTOs — the public list of power projects waiting to connect to the grid.
 
-**Live ISOs:** ERCOT, MISO, PJM, CAISO, SPP, NYISO, ISO-NE — each from that market’s **public queue report**. The fetcher uses the open-source [gridstatus](https://opensource.gridstatus.io/en/stable/interconnection_queues.html) library for six markets; PJM is fetched directly from PJM’s public export API.
+**Live ISOs:** ERCOT, MISO, PJM, CAISO, SPP, NYISO, ISO-NE — each from that market’s **public queue report**, fetched directly from each ISO’s public data source.
 
 ---
 
@@ -57,7 +57,7 @@ Or locally without Docker:
 |---|---|
 | UI | Next.js 16, Tailwind v4 |
 | Data | Postgres (`queue_projects`, `queue_market_snapshots`) |
-| Fetcher | Python (gridstatus + direct ISO feeds) |
+| Fetcher | Python (direct ISO feeds) |
 
 The web app reads Postgres directly — no separate API service.
 

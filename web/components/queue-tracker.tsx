@@ -188,17 +188,7 @@ export function QueueTracker({ initial }: { initial: QueuePayload }) {
           </div>
           <div className="mt-3 text-xs leading-relaxed text-[#787774]">
           <p>
-            Data from public ISO/RTO interconnection queue reports (see source links per market).
-            Most markets are fetched with the open-source{" "}
-            <a
-              href="https://opensource.gridstatus.io/"
-              className="text-[#1f6c9f] hover:underline"
-              target="_blank"
-              rel="noreferrer"
-            >
-              gridstatus
-            </a>{" "}
-            library; PJM is pulled directly from PJM&apos;s public queue export.
+            Data from public ISO/RTO interconnection queue reports, fetched directly from each market&apos;s public data source (see source links per market).
           </p>
           <p className="mt-2">
             This site is not affiliated with, endorsed by, or operated by any ISO, RTO, or Grid
