@@ -1,25 +1,5 @@
 [
   {
-    "id": "ercot-large-load",
-    "market": "ERCOT",
-    "category": "Large load queue",
-    "headline": "Large-load applications continue to stay elevated",
-    "status": "Active",
-    "pressure": 97,
-    "updated": "2026-02-01",
-    "queueMw": 239000,
-    "requestCount": 400,
-    "metrics": [
-      { "label": "Queue MW", "value": "239,000 MW" },
-      { "label": "Requests", "value": "400" },
-      { "label": "Peak multiple", "value": "2.8x system peak" }
-    ],
-    "summary": "ERCOT's 2026 annual report says the large-load interconnection queue contained roughly 400 requests totaling about 239 GW-equivalent demand.",
-    "sourceLabel": "ERCOT Annual Report - 2025",
-    "sourceUrl": "https://www.ercot.com/files/docs/2026/03/19/2025-ERCOT-Annual-Report-Final-Single-Pages-March-19-2026.pdf",
-    "dataMode": "curated"
-  },
-  {
     "id": "pjm-transition-queue",
     "market": "PJM",
     "category": "Transition queue",
