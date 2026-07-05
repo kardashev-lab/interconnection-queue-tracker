@@ -10,14 +10,21 @@ import { QueueBriefing } from "@/components/queue-briefing";
 import { QueueHero } from "@/components/queue-hero";
 import { QueueSignals } from "@/components/queue-signals";
 import { MarketIcon } from "@/components/market-icon";
+import { ErcotLargeLoad } from "@/components/ercot-large-load";
 import {
   computeAllMarketStats,
   computeNationalInsights,
 } from "@/lib/analytics";
 import { sortMarkets } from "@/lib/markets";
-import type { QueuePayload } from "@/lib/types";
+import type { ErcotLargeLoadSnapshot, QueuePayload } from "@/lib/types";
 
-export function QueueTracker({ initial }: { initial: QueuePayload }) {
+export function QueueTracker({
+  initial,
+  ercotLargeLoad,
+}: {
+  initial: QueuePayload;
+  ercotLargeLoad: ErcotLargeLoadSnapshot[];
+}) {
   const [marketFilter, setMarketFilter] = useState<string>("all");
   const [showLookup, setShowLookup] = useState(false);
 
@@ -178,6 +185,8 @@ export function QueueTracker({ initial }: { initial: QueuePayload }) {
             />
           </>
         )}
+
+        <ErcotLargeLoad snapshots={ercotLargeLoad} />
       </main>
 
       <footer className="surface mt-12 border-t border-[#eaeaea]">

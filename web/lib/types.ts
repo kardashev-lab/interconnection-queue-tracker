@@ -43,3 +43,20 @@ export interface QueuePayload {
   projects: QueueProject[];
   liveTotals: LiveTotals | null;
 }
+
+// ERCOT's monthly Large Load Working Group status update -- see
+// kardashev-data's ingest/ercot_large_load.py for how this is extracted.
+export interface ErcotLargeLoadSnapshot {
+  snapshotMonth: string;
+  reportDate: string | null;
+  totalMw: number | null;
+  colocatedMw: number | null;
+  standaloneMw: number | null;
+  byStatus: Record<string, number> | null;
+  bySizeBucket: Record<string, { count: number; mw: number }> | null;
+  byType: Record<string, { pct: number; mw: number | null }> | null;
+  byZone: Record<string, number> | null;
+  approvedToEnergizeMw: number | null;
+  planningStudiesApprovedMw: number | null;
+  sourceUrl: string | null;
+}
