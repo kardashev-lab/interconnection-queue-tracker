@@ -24,6 +24,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title,
   description,
+  alternates: {
+    canonical: "/",
+  },
   icons: {
     icon: "/images/logo.svg",
     apple: "/images/logo.svg",
@@ -51,6 +54,52 @@ export const metadata: Metadata = {
   },
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Dataset",
+      "@id": `${siteUrl}/#dataset`,
+      name: "US ISO/RTO Interconnection Queue Data",
+      description:
+        "Unified dataset of power generation projects waiting to connect to the US grid across all 7 major ISO/RTOs: ERCOT, MISO, PJM, CAISO, SPP, NYISO, and ISO-NE. Includes project fuel mix, requested MW capacity, and queue status, refreshed daily.",
+      url: siteUrl,
+      creator: {
+        "@type": "Organization",
+        name: "Kardashev Labs",
+        url: "https://kardashevlabs.org",
+      },
+      keywords: [
+        "interconnection queue",
+        "ERCOT",
+        "MISO",
+        "PJM",
+        "CAISO",
+        "SPP",
+        "NYISO",
+        "ISO-NE",
+        "power generation projects",
+        "grid interconnection",
+      ],
+      temporalCoverage: "..",
+      license: "https://opensource.org/licenses/MIT",
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${siteUrl}/#website`,
+      url: siteUrl,
+      name: title,
+      description,
+      publisher: {
+        "@type": "Organization",
+        name: "Kardashev Labs",
+        url: "https://kardashevlabs.org",
+      },
+      inLanguage: "en-US",
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -58,6 +107,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${sourceSans.variable} h-full`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className="min-h-full antialiased">{children}</body>
     </html>
   );

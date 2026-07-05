@@ -1,0 +1,29 @@
+# US Interconnection Queue Tracker
+
+> A free tool from Kardashev Labs providing unified search across all 7 major US ISO/RTO generator interconnection queues: ERCOT, MISO, PJM, CAISO, SPP, NYISO, and ISO-NE. Tracks every power generation project waiting to connect to the US grid.
+
+The interconnection queue is the list of power generation and storage projects (solar, wind, gas, battery storage, etc.) that have applied to connect to a regional grid operator's transmission system. Projects can wait years before being approved, and queue size/composition is a leading indicator of where new generation capacity is headed. This tool aggregates that data across every major US ISO/RTO into one searchable interface.
+
+## What the data means
+
+- **Project**: A single proposed generation or storage facility with an interconnection request filed with an ISO/RTO.
+- **Requested MW**: The nameplate capacity (megawatts) the project has requested to interconnect. This is not guaranteed capacity — many projects in the queue are withdrawn or downsized before completion.
+- **Fuel type / technology**: The generation source (solar, wind, battery storage, natural gas, etc.) proposed for the project.
+- **Queue status**: Where the project sits in the ISO/RTO's interconnection study and approval process (e.g., active, withdrawn, in service).
+- **MW totals** shown in aggregate views (by ISO, fuel type, or status) sum the requested capacity of all matching projects — they represent proposed, not built, capacity.
+
+## Coverage
+
+ERCOT (Texas), MISO (Midcontinent), PJM (Mid-Atlantic/Midwest), CAISO (California), SPP (Southwest Power Pool), NYISO (New York), and ISO-NE (New England). Data is refreshed daily via automated pipelines.
+
+## Key facts
+
+- Free and open source
+- Source code: https://github.com/kardashev-lab
+- Part of Kardashev Labs: https://kardashevlabs.org
+- Shared data platform: https://data.kardashevlabs.org (kardashev-data)
+- Contact: ashutosh@kardashevlabs.org
+
+## About Kardashev Labs
+
+Kardashev Labs builds free, open-source tools for US energy grid intelligence, accelerating humanity toward Kardashev Type I by making grid data universally accessible.
