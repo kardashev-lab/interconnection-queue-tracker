@@ -203,6 +203,10 @@ export function QueueTracker({
             This site is not affiliated with, endorsed by, or operated by any ISO, RTO, or Grid
             Status.
           </p>
+          <p className="mt-2">
+            Use this data in Python:{" "}
+            <a href="https://pypi.org/project/kardashev/" target="_blank" rel="noopener noreferrer" className="underline">pip install kardashev</a>
+          </p>
           </div>
         </div>
       </footer>
