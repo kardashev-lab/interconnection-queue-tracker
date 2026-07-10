@@ -34,7 +34,7 @@ MARKET_CONFIG: dict[str, dict[str, Any]] = {
         "snapshot_id": "ercot-gen-queue",
         "category": "Generator interconnection queue",
         "source_label": "ERCOT GIS Report",
-        "source_url": "http://mis.ercot.com/misapp/GetReports.do?reportTypeId=15933",
+        "source_url": "https://www.ercot.com/misapp/servlets/IceDocListJsonWS?reportTypeId=15933",
     },
     "MISO": {
         "fetch": "miso_direct",
@@ -364,22 +364,30 @@ def fetch_spp_direct() -> pd.DataFrame:
 
 
 def fetch_ercot_direct() -> pd.DataFrame:
-    # Parse ERCOT MIS public report listing to find latest GIS Report xlsx
+    # mis.ercot.com/misapp/GetReports.do now redirects every request into a
+    # SiteMinder cert-auth gateway and never returns the report listing, even
+    # over HTTPS with a browser user-agent. www.ercot.com's MIS document-list
+    # servlet is the same underlying system without that gate (no auth
+    # required) and is what kardashev-py's ERCOT client already uses.
     listing = requests.get(
-        "http://mis.ercot.com/misapp/GetReports.do",
+        "https://www.ercot.com/misapp/servlets/IceDocListJsonWS",
         params={"reportTypeId": 15933},
         timeout=60,
     )
     listing.raise_for_status()
-    links = re.findall(r'href="([^"]*GIS_Report[^"]*\.xlsx)"', listing.text, re.IGNORECASE)
-    if not links:
-        links = re.findall(r'href="([^"]*\.xlsx)"', listing.text, re.IGNORECASE)
-    if not links:
-        raise RuntimeError("No GIS xlsx link found in ERCOT MIS listing page")
-    xlsx_url = links[0]
-    if not xlsx_url.startswith("http"):
-        xlsx_url = "http://mis.ercot.com" + xlsx_url
-    resp = requests.get(xlsx_url, timeout=180)
+    docs = listing.json()["ListDocsByRptTypeRes"]["DocumentList"]
+    gis_docs = [
+        d["Document"] for d in docs
+        if str(d["Document"].get("FriendlyName", "")).startswith("GIS_Report")
+    ]
+    if not gis_docs:
+        raise RuntimeError("No GIS_Report document found in ERCOT MIS document list")
+    latest = max(gis_docs, key=lambda d: d["PublishDate"])
+    resp = requests.get(
+        "https://www.ercot.com/misdownload/servlets/mirDownload",
+        params={"doclookupId": latest["DocID"]},
+        timeout=180,
+    )
     resp.raise_for_status()
     df = pd.read_excel(io.BytesIO(resp.content), sheet_name="Project Details - Large Gen", skiprows=30).iloc[4:]
     df["State"] = "Texas"
