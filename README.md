@@ -59,7 +59,7 @@ Or locally without Docker:
 | Data | Postgres (`queue_projects`, `queue_market_snapshots`) |
 | Fetcher | Python (direct ISO feeds) |
 
-The web app reads Postgres directly. No separate API service.
+The web app reads Postgres directly (no separate API service). The ERCOT large-load panel is the exception: it fetches a pre-built snapshot from `kardashev-data` over HTTP.
 
 ---
 
@@ -88,8 +88,15 @@ The web app reads Postgres directly. No separate API service.
 | `DATABASE_URL` | `postgres://queue:queue@127.0.0.1:5434/queue` | Live queue data |
 | `CURATED_PATH` | `./data/curated.json` | Fallback signals |
 | `NEXT_PUBLIC_SITE_URL` | `https://your-app.up.railway.app` | OG metadata |
+| `KARDASHEV_DATA_URL` | `https://data.kardashevlabs.org` | Optional. Source for the ERCOT large-load panel; defaults to the hosted `kardashev-data` service if unset. |
 
-**Fetcher** uses `DATABASE_URL` and optional `FETCH_MARKETS`.
+**Fetcher (`services/fetcher`)**
+
+| Variable | Purpose |
+|---|---|
+| `DATABASE_URL` | Required. Postgres connection string. |
+| `FETCH_MARKETS` | Optional. Comma-separated subset of markets to fetch (default: all seven). |
+| `PJM_QUEUE_SUBSCRIPTION_KEY` | Required for PJM. Public subscription key used by PJM's interconnection queue web app (not a member API key). Without it, PJM is skipped. |
 
 ---
 
@@ -101,7 +108,7 @@ The web app reads Postgres directly. No separate API service.
 2. Set the web service **root directory** to `web`.
 3. Link Postgres → injects `DATABASE_URL`.
 4. Set `NEXT_PUBLIC_SITE_URL` to your Railway URL.
-5. Add GitHub secret `DATABASE_URL` (Railway Postgres **public** URL) for the daily fetch workflow.
+5. Add GitHub secrets `DATABASE_URL` (Railway Postgres **public** URL) and `PJM_QUEUE_SUBSCRIPTION_KEY` for the daily fetch workflow (without the PJM key, PJM is skipped).
 6. Run the fetcher once before launch (Actions → “Fetch ISO queues” → Run workflow).
 
 ### Docker
