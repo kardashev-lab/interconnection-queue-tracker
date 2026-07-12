@@ -60,3 +60,49 @@ export interface ErcotLargeLoadSnapshot {
   planningStudiesApprovedMw: number | null;
   sourceUrl: string | null;
 }
+
+export interface ZoneTimelineStat {
+  zone: string;
+  projectCount: number;
+  fullProcessMedianDays: number | null;
+  buildPhaseMedianDays: number | null;
+  codSlipMedianDays: number | null;
+}
+
+export interface FuelTimelineStat {
+  fuel: string;
+  projectCount: number;
+  fullProcessMedianDays: number | null;
+}
+
+export interface PendingQueueStat {
+  zone: string;
+  projectCount: number;
+  totalMw: number;
+  medianYearsWaiting: number | null;
+}
+
+export interface InterconnectionTimelines {
+  available: boolean;
+  asOfMonth: string | null;
+  energizedProjectCount: number;
+  zoneStats: ZoneTimelineStat[];
+  fuelStats: FuelTimelineStat[];
+  pendingStats: PendingQueueStat[];
+  pendingTotalCount: number;
+  pendingTotalMw: number;
+  projects: TimelineProject[];
+}
+
+export interface TimelineProject {
+  queueId: string;
+  projectName: string | null;
+  zone: string | null;
+  fuel: string | null;
+  capacityMw: number | null;
+  screeningStudyStarted: string | null;
+  iaSigned: string | null;
+  approvedForEnergization: string | null;
+  projectedCod: string | null;
+  status: "energized" | "pending";
+}

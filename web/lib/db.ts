@@ -28,6 +28,13 @@ function getPool(): pg.Pool | null {
   return pool;
 }
 
+// Exposed for lib/interconnection-timelines.ts, which runs its own
+// aggregation query against ercot_gis_snapshots (a table this app only
+// reads, owned by services/fetcher/backfill_gis.py).
+export function getTimelinePool(): pg.Pool | null {
+  return getPool();
+}
+
 // The fetcher owns the schema (services/fetcher/schema.sql); the web app only
 // reads. Before the first fetch run the tables won't exist yet, so check once
 // and let callers fall back to curated data instead of erroring.

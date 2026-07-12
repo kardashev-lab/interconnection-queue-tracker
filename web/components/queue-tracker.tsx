@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AppLogo } from "@/components/app-logo";
 import { MarketOverview } from "@/components/market-overview";
@@ -187,6 +188,23 @@ export function QueueTracker({
         )}
 
         <ErcotLargeLoad snapshots={ercotLargeLoad} />
+
+        <section className="surface border border-[#eaeaea] p-5">
+          <p className="font-label">New</p>
+          <h2 className="mt-2 font-display text-xl text-[#2f3437]">
+            How long does ERCOT interconnection actually take?
+          </h2>
+          <p className="mt-2 max-w-2xl text-base leading-relaxed text-[#5f5c58]">
+            Built from 97 months of ERCOT&apos;s public GIS Report filings: real measured
+            timelines by zone and fuel type, not filed estimates.
+          </p>
+          <Link
+            href="/interconnection-timelines"
+            className="mt-4 inline-flex min-h-11 items-center border border-[#eaeaea] bg-white px-4 py-2.5 text-sm text-[#2f3437] hover:bg-[#f7f6f3] active:scale-[0.98]"
+          >
+            View interconnection timelines →
+          </Link>
+        </section>
       </main>
 
       <footer className="surface mt-12 border-t border-[#eaeaea]">
